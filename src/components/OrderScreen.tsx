@@ -298,57 +298,6 @@ const products: Product[] = [
  
 ];
 
-const menuItems: MenuItem[] = [
-  {
-    id: '1',
-    name: 'Döner Porsiyon',
-    description: 'Özel soslu döner porsiyon',
-    price: 120,
-    image: '/images/doner.jpg',
-    category: 'Ana Yemekler'
-  },
-  {
-    id: '2',
-    name: 'İskender',
-    description: 'Özel domates soslu iskender',
-    price: 150,
-    image: '/images/iskender.jpg',
-    category: 'Ana Yemekler'
-  },
-  {
-    id: '3',
-    name: 'Lahmacun',
-    description: 'İnce hamurlu lahmacun',
-    price: 45,
-    image: '/images/lahmacun.jpg',
-    category: 'Fast Food'
-  },
-  {
-    id: '4',
-    name: 'Pide',
-    description: 'Kaşarlı pide',
-    price: 60,
-    image: '/images/pide.jpg',
-    category: 'Fast Food'
-  },
-  {
-    id: '5',
-    name: 'Ayran',
-    description: 'Soğuk ayran',
-    price: 15,
-    image: '/images/ayran.jpg',
-    category: 'İçecekler'
-  },
-  {
-    id: '6',
-    name: 'Kola',
-    description: 'Soğuk kola',
-    price: 20,
-    image: '/images/kola.jpg',
-    category: 'İçecekler'
-  }
-];
-
 const OrderScreen: React.FC = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -525,26 +474,6 @@ const OrderScreen: React.FC = () => {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-  };
-
-  const handleAddToCart = (item: MenuItem) => {
-    setCart(prevCart => {
-      const existingItem = prevCart.find(cartItem => cartItem.id === item.id);
-      if (existingItem) {
-        return prevCart.map(cartItem =>
-          cartItem.id === item.id
-            ? { ...cartItem, quantity: cartItem.quantity + 1 }
-            : cartItem
-        );
-      }
-      return [...prevCart, { 
-        id: item.id,
-        name: item.name,
-        price: item.price,
-        quantity: 1,
-        category: item.category
-      }];
-    });
   };
 
   const filteredProducts = products.filter(
