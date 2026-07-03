@@ -48,15 +48,6 @@ interface Product {
   image?: string;
 }
 
-interface MenuItem {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  image: string;
-  category: string;
-}
-
 const categories = [
   'Hatay Usulü Dönerler',
   'Klasik Dönerler',
