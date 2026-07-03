@@ -301,7 +301,7 @@ const products: Product[] = [
 const OrderScreen: React.FC = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { addOrder } = useOrders();
+  const { addOrder: _addOrder } = useOrders();
   const orderType = searchParams.get('type') === 'delivery' ? 'delivery' : 'dine-in';
   const [selectedCategory, setSelectedCategory] = useState<string>(categories[0]);
   const [cart, setCart] = useState<CartItem[]>([]);

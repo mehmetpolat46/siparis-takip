@@ -22,12 +22,10 @@ const shineKeyframes = `
 
 const WelcomeScreen: React.FC = () => {
   const navigate = useNavigate();
-  const [selectedType, setSelectedType] = useState<'dine-in' | 'delivery' | null>(null);
   const { orders, deleteOrder } = useOrders();
   const [confirmOpen, setConfirmOpen] = useState(false);
 
   const handleOrderType = (type: 'dine-in' | 'delivery') => {
-    setSelectedType(type);
     setTimeout(() => {
       navigate(`/order?type=${type}`);
     }, 200);

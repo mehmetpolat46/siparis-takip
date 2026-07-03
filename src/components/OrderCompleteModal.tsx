@@ -7,7 +7,6 @@ import {
   Button,
   Typography,
   Box,
-  TextField,
   TableContainer,
   Table,
   TableHead,
@@ -132,7 +131,6 @@ const OrderCompleteModal: React.FC<OrderCompleteModalProps> = ({
       return itemIds.map(cartItemId => {
         const itemGroups = customizedInstances.filter(g => String(g.cartItemId) === cartItemId);
         const itemName   = itemGroups[0].name;
-        const totalQty   = itemGroups.reduce((s, g) => s + g.quantity, 0);
         const feePerUnit = getGroupDeliveryFeePerUnit(itemGroups[0]);
 
         // ── Her grup için kendi satırı ──────────────────────────────────────
@@ -502,8 +500,8 @@ const OrderCompleteModal: React.FC<OrderCompleteModalProps> = ({
                       const itemIds = Array.from(new Set(customizedInstances.map(g => String(g.cartItemId))));
                       return itemIds.map(cartItemId => {
                         const itemGroups = customizedInstances.filter(g => String(g.cartItemId) === cartItemId);
-                        const totalQty   = itemGroups.reduce((s, g) => s + g.quantity, 0);
                         const lineTotal  = itemGroups.reduce((s, g) => s + g.basePrice * g.quantity, 0);
+                        const totalQty   = itemGroups.reduce((s, g) => s + g.quantity, 0);
                         const itemName   = itemGroups[0].name;
                         const deliveryFee = initialOrderType === 'delivery'
                           ? itemGroups.reduce((s, g) => s + getDeliveryFeeForItem({ id: g.cartItemId, name: g.name, price: g.basePrice, quantity: g.quantity, category: g.category }), 0)

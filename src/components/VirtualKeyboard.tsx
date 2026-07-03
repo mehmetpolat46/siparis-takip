@@ -8,7 +8,7 @@
  */
 
 import React, { useState, useCallback } from 'react';
-import { Box, IconButton, Slide, Typography, Fab } from '@mui/material';
+import { Box, Slide, Typography, Fab } from '@mui/material';
 import KeyboardIcon from '@mui/icons-material/Keyboard';
 import KeyboardHideIcon from '@mui/icons-material/KeyboardHide';
 import BackspaceIcon from '@mui/icons-material/Backspace';
