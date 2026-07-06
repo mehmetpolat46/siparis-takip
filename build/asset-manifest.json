@@ -1,0 +1,18 @@
+{
+  "files": {
+    "main.js": "/siparis-takip/static/js/main.a60521f9.js",
+    "static/js/239.9ab06730.chunk.js": "/siparis-takip/static/js/239.9ab06730.chunk.js",
+    "static/js/977.54e80d3a.chunk.js": "/siparis-takip/static/js/977.54e80d3a.chunk.js",
+    "static/js/455.c7dd8efb.chunk.js": "/siparis-takip/static/js/455.c7dd8efb.chunk.js",
+    "static/js/453.ffbf282a.chunk.js": "/siparis-takip/static/js/453.ffbf282a.chunk.js",
+    "index.html": "/siparis-takip/index.html",
+    "main.a60521f9.js.map": "/siparis-takip/static/js/main.a60521f9.js.map",
+    "239.9ab06730.chunk.js.map": "/siparis-takip/static/js/239.9ab06730.chunk.js.map",
+    "977.54e80d3a.chunk.js.map": "/siparis-takip/static/js/977.54e80d3a.chunk.js.map",
+    "455.c7dd8efb.chunk.js.map": "/siparis-takip/static/js/455.c7dd8efb.chunk.js.map",
+    "453.ffbf282a.chunk.js.map": "/siparis-takip/static/js/453.ffbf282a.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/js/main.a60521f9.js"
+  ]
+}

@@ -159,10 +159,10 @@ const OrderCompleteModal: React.FC<OrderCompleteModalProps> = ({
 
           return `
             <div class="item kitchen-item">
-              <span class="item-name">${g.quantity}x ${itemName}${ingParenthesis}</span>
+              <span class="item-name">${g.quantity}x ${itemName}</span>
               <span class="dots"></span>
               <span class="item-details">${lineTotalWithFee} TL</span>
-            </div>`;
+            </div>${ingParenthesis ? `<div class="ing-sub-line">${ingParenthesis.replace(/^\s*\(/, '').replace(/\)\s*$/, '')}</div>` : ''}`;
         }).join('');
 
         return groupLines;
@@ -370,6 +370,15 @@ const OrderCompleteModal: React.FC<OrderCompleteModalProps> = ({
                 padding: 3px 8px 3px 28px;
                 color: #000;
                 letter-spacing: 0.5px;
+              }
+
+              .ing-sub-line {
+                font-size: 18px;
+                font-weight: 700;
+                padding: 2px 8px 10px 300px;
+                color: #000;
+                letter-spacing: 0.5px;
+                margin-bottom: 4px;
               }
 
               .ing-removed {
