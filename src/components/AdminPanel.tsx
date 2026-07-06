@@ -18,7 +18,6 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  Chip,
   IconButton,
   Dialog,
   DialogTitle,
@@ -36,7 +35,6 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useNavigate } from 'react-router-dom';
 import { useOrders } from '../context/OrderContext';
-import PrintIcon from '@mui/icons-material/Print';
 import HomeIcon from '@mui/icons-material/Home';
 import ExcelExport from './ExcelExport';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from 'recharts';
@@ -114,7 +112,7 @@ const AdminPanel: React.FC = () => {
     });
   };
 
-  const stats = getSalesStats();
+  const stats = getSalesStats(); // eslint-disable-line @typescript-eslint/no-unused-vars
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
@@ -171,6 +169,7 @@ const AdminPanel: React.FC = () => {
   }, {} as { [key: string]: typeof filteredOrders });
 
   // Günlük toplam satışları hesapla (filtrelenmiş)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const dailySales = Object.entries(groupedOrders).map(([date, orders]) => ({
     date,
     totalSales: orders.reduce((sum, order) => sum + order.total, 0),

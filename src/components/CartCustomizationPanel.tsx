@@ -579,6 +579,7 @@ const CartCustomizationPanel: React.FC<CartCustomizationPanelProps> = ({
       if (!source) return prev;
 
       const itemGroups = prev.filter((g) => g.cartItemId === source.cartItemId);
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const totalQty = itemGroups.reduce((s, g) => s + g.quantity, 0);
       const diff = newQty - source.quantity; // + artırma, - azaltma
 
@@ -600,6 +601,7 @@ const CartCustomizationPanel: React.FC<CartCustomizationPanelProps> = ({
       // Azaltma (diff < 0): bu gruptan 1 adet eksilt, yeni boş grup ekle
       if (source.quantity <= 1) return prev; // en az 1 kalmalı
 
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const cartItem = cart.find((c) => c.id === source.cartItemId)!;
       const newGroup: CartGroup = {
         ...source,
