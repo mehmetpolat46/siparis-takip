@@ -177,249 +177,189 @@ const OrderCompleteModal: React.FC<OrderCompleteModalProps> = ({
           <head>
             <title>USLU DÖNER -  Fişi</title>
             <style>
-              @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
-              
-              body { 
-                font-family: 'Roboto', sans-serif;
-                padding: 20px;
-                max-width: 600px;
-                margin: 0 auto;
-                background: #fff;
+              @page {
+                margin: 0;
+                size: auto;
               }
-              
+
+              * {
+                box-sizing: border-box;
+              }
+
+              body {
+                font-family: 'Courier New', monospace;
+                padding: 8px;
+                margin: 0;
+                background: #fff;
+                width: 100%;
+              }
+
               .receipt {
                 background: white;
-                padding: 20px;
-                border-radius: 8px;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-                font-family: 'Courier New', monospace;
+                padding: 8px 4px;
                 color: #000;
                 font-weight: 600;
                 width: 100%;
               }
-              
-              .header { 
+
+              .header {
                 text-align: center;
-                margin-bottom: 20px;
+                margin-bottom: 12px;
                 color: #000;
               }
-              
+
               .header h2 {
-                font-size: 28px;
+                font-size: 24px;
                 margin: 0;
                 color: #000;
                 font-weight: 700;
               }
-              
+
               .header p {
                 color: #000;
-                margin: 5px 0 0;
-                font-size: 18px;
+                margin: 4px 0 0;
+                font-size: 16px;
                 font-weight: 600;
               }
-              
+
               .receipt-number {
                 font-weight: 700;
-                font-size: 20px;
+                font-size: 18px;
                 color: #000;
               }
-              
+
               .info {
-                margin-bottom: 25px;
-                font-size: 16px;
+                margin-bottom: 16px;
+                font-size: 15px;
                 color: #000;
                 font-weight: 600;
               }
-              
+
               .info p {
-                margin: 5px 0;
+                margin: 4px 0;
                 color: #000;
                 font-weight: 600;
-                font-size: 21px;
+                font-size: 17px;
               }
 
               .info p:last-of-type {
-                margin-bottom: 20px;
+                margin-bottom: 12px;
               }
-              
+
               .items {
-                margin-bottom: 25px;
+                margin-bottom: 16px;
+                width: 100%;
               }
-              
+
+              /* Her ürün satırı: flex, tek satırda yan yana */
               .item {
-                margin-bottom: 20px;
-                font-size: 18px;
                 display: flex;
+                flex-wrap: nowrap;
                 justify-content: space-between;
-                align-items: center;
+                align-items: baseline;
+                margin-bottom: 10px;
+                font-size: 18px;
                 color: #000;
                 font-weight: 600;
-                line-height: 1.5;
+                line-height: 1.4;
+                width: 100%;
               }
-              
+
               .item-name {
                 flex: 1;
-                margin-right: 15px;
+                min-width: 0;
+                word-wrap: break-word;
+                word-break: break-word;
+                white-space: normal;
                 color: #000;
                 font-weight: 600;
-                font-size: 26px;
+                font-size: 20px;
+                margin-right: 6px;
               }
-              
+
               .item-details {
+                flex-shrink: 0;
                 text-align: right;
                 white-space: nowrap;
                 color: #000;
-                font-weight: 600;
-                font-size: 24px;
+                font-weight: 700;
+                font-size: 20px;
               }
-              
+
               .dots {
                 border-bottom: 1px dotted #000;
                 flex: 1;
-                margin: 0 12px;
+                min-width: 8px;
+                margin: 0 6px;
                 position: relative;
                 top: -4px;
+                flex-shrink: 1;
               }
-              
+
+              /* Malzeme satırı — dürüm adının altında, 300px soldan başlar */
+              .ing-sub-line {
+                font-size: 16px;
+                font-weight: 700;
+                padding: 0 0 8px 300px;
+                color: #000;
+                letter-spacing: 0.5px;
+                width: 100%;
+                word-wrap: break-word;
+                word-break: break-word;
+                white-space: normal;
+              }
+
               .total {
                 border-top: 2px dashed #000;
-                padding-top: 15px;
-                margin-top: 20px;
-                font-size: 18px;
+                padding-top: 12px;
+                margin-top: 12px;
+                font-size: 17px;
                 color: #000;
                 font-weight: 600;
               }
-              
+
               .total p {
-                margin: 8px 0;
+                margin: 6px 0;
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
                 color: #000;
                 font-weight: 600;
               }
-              
+
               .total .grand-total {
                 font-weight: 700;
-                font-size: 22px;
+                font-size: 21px;
                 color: #000;
-                margin-top: 10px;
+                margin-top: 8px;
               }
-              
+
               .footer {
                 text-align: center;
-                margin-top: 25px;
-                font-size: 16px;
+                margin-top: 16px;
+                font-size: 14px;
                 color: #000;
                 border-top: 1px dashed #000;
-                padding-top: 15px;
+                padding-top: 12px;
                 font-weight: 600;
               }
-              .items span {
-                font-size: 22px !important;
-              }
-              
-              .kitchen-item .item-name {
-                font-size: 22px;
-              }
 
-              .inst-idx {
-                font-size: 14px !important;
-                color: #555;
-                font-weight: 400;
-              }
-
-              .ingredient-line {
-                font-size: 16px;
-                padding: 4px 8px 10px 8px;
-                border-bottom: 1px dashed #ccc;
-                margin-bottom: 4px;
-                letter-spacing: 1px;
-              }
-
-              .ing {
-                display: inline-block;
-                margin-right: 6px;
-                font-weight: 700;
+              .footer p {
+                margin: 4px 0;
                 color: #000;
+                font-weight: 600;
               }
 
-              .ing.removed {
-                color: #999;
-                font-weight: 400;
-              }
-
-              .ing.extra {
-                color: #1a7a1a;
-                font-weight: 700;
-              }
-
-              .bread {
-                display: inline-block;
-                margin-right: 8px;
-                font-weight: 700;
-                color: #333;
-                background: #f5f5f5;
-                border-radius: 3px;
-                padding: 1px 5px;
-                font-size: 14px;
-              }              
               .sub-line {
-                font-size: 18px;
+                font-size: 16px;
                 font-weight: 700;
-                padding: 3px 8px 3px 28px;
+                padding: 2px 0 2px 20px;
                 color: #000;
                 letter-spacing: 0.5px;
-              }
-
-              .ing-sub-line {
-                font-size: 18px;
-                font-weight: 700;
-                padding: 2px 8px 10px 300px;
-                color: #000;
-                letter-spacing: 0.5px;
-                margin-bottom: 4px;
-              }
-
-              .ing-removed {
-                font-size: 18px;
-                font-weight: 700;
-                color: #000;
-                margin-right: 10px;
               }
 
               .ing-removed s {
                 text-decoration-thickness: 2px;
-              }
-
-              .ing-active {
-                font-size: 18px;
-                font-weight: 700;
-                color: #000;
-                margin-right: 10px;
-              }
-
-              .ing-extra {
-                font-size: 18px;
-                font-weight: 800;
-                color: #1a7a1a;
-                margin-right: 10px;
-              }
-
-              .ing-bread {
-                font-size: 16px;
-                font-weight: 700;
-                color: #333;
-                background: #f0f0f0;
-                border-radius: 3px;
-                padding: 1px 6px;
-                margin-right: 8px;
-              }
-              
-              .footer p {
-                margin: 5px 0;
-                color: #000;
-                font-weight: 600;
               }
             </style>
           </head>

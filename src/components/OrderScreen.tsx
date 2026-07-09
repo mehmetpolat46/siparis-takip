@@ -61,19 +61,19 @@ const products: Product[] = [
   // Hatay Usulü Dönerler
   {
     id: 1,
-    name: 'Hatay Usulü TAVUK Eko Döner',
+    name: 'Hatay Eko Döner',
     price: 150,
     category: 'Hatay Usulü Dönerler',
   },
   {
     id: 2,
-    name: 'Hatay Usulü TAVUK Normal Döner',
+    name: 'Hatay  Normal Döner',
     price: 170,
     category: 'Hatay Usulü Dönerler',
   },
   {
     id: 3,
-    name: 'Hatay Usulü TAVUK Maksi Döner',
+    name: 'Hatay Maksi Döner',
     price: 220,
     category: 'Hatay Usulü Dönerler',
   },
@@ -112,13 +112,13 @@ const products: Product[] = [
   // Klasik Dönerler
   {
     id: 7,
-    name: 'Klasik TAVUK Eko Döner',
+    name: 'Klasik Eko Döner',
     price: 150,
     category: 'Klasik Dönerler',
   },
   {
     id: 8,
-    name: 'Klasik TAVUK Normal Döner',
+    name: 'Klasik Normal Döner',
     price: 170,
     category: 'Klasik Dönerler',
   },
@@ -144,13 +144,13 @@ const products: Product[] = [
   // Takolar
   {
     id: 11,
-    name: 'TAVUK Tekli Tako',
+    name: 'Tekli Tako',
     price: 120,
     category: 'Takolar',
   },
   {
     id: 12,
-    name: 'TAVUK İkili Tako',
+    name: 'İkili Tako',
     price: 220,
     category: 'Takolar',
   },
@@ -183,7 +183,7 @@ const products: Product[] = [
   },
   {
     id: 17,
-    name: 'Pilav Üstü TAVUK Döner Porsiyon',
+    name: 'Pilav Üstü Porsiyon',
     price: 270,
     category: 'Porsiyonlar',
   },
@@ -209,7 +209,7 @@ const products: Product[] = [
   // Menüler
   {
     id: 20,
-    name: 'TAVUK Döner Menü',
+    name: 'TAVUK  Menü',
     price: 260,
     category: 'Menüler',
   },
