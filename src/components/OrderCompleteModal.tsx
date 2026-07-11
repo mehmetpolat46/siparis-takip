@@ -143,22 +143,28 @@ const OrderCompleteModal: React.FC<OrderCompleteModalProps> = ({
           const ings = (pType === 'hatay' || menuType === 'hatay')  ? g.hatayIngredients  :
                        (pType === 'klasik' || menuType === 'klasik') ? g.klasikIngredients : undefined;
 
-          // Malzeme parantezi: (pat, tu, tvk, sos, <s>may</s>)
+          // Menü ise döner tipi etiketi
+          const menuTypeLabel = pType === 'menu' && menuType
+            ? `<span class="menu-type-label">${menuType === 'hatay' ? '🌶 Hatay Usulü' : '🥙 Klasik'}</span> `
+            : '';
+
+          // Malzeme parantezi: (pat, tu, tvk, sos, ✕may)
           let ingParenthesis = '';
           if (ings && ings.length > 0) {
             const ingStr = ings
               .map(ig => ig.active
                 ? ig.abbr
-                : `<s>${ig.abbr}</s>`)
-              .join(', ');
+                : `<span class="ing-removed"><span class="ing-x">✕</span>${ig.abbr}</span>`)
+              .join('  ');
             const breadPrefix = (pType === 'klasik' || menuType === 'klasik') && g.klasikBread
-              ? `${g.klasikBread}, `
+              ? `${g.klasikBread.toUpperCase()}, `
               : '';
             ingParenthesis = ` (${breadPrefix}${ingStr})`;
           }
 
           const ingContent = ingParenthesis ? ingParenthesis.replace(/^\s*\(/, '').replace(/\)\s*$/, '') : '';
-          return `<div class="item kitchen-item"><span class="item-name">${g.quantity}x ${itemName}</span><span class="dots"></span><span class="item-details">${lineTotalWithFee} TL</span></div>${ingContent ? `<div class="ing-sub-line">${ingContent}</div>` : ''}`;
+          const subLine = menuTypeLabel + ingContent;
+          return `<div class="item kitchen-item"><span class="item-name">${g.quantity}x ${itemName}</span><span class="dots"></span><span class="item-details">${lineTotalWithFee} TL</span></div>${subLine ? `<div class="ing-sub-line">${subLine}</div>` : ''}`;
         }).join('');
 
         return groupLines;
@@ -353,8 +359,29 @@ const OrderCompleteModal: React.FC<OrderCompleteModalProps> = ({
                 letter-spacing: 0.5px;
               }
 
-              .ing-removed s {
-                text-decoration-thickness: 2px;
+              .menu-type-label {
+                font-size: 14px;
+                font-weight: 800;
+                color: #000;
+                margin-right: 6px;
+              }
+
+              .ing-removed {                position: relative;
+                display: inline-block;
+                font-weight: 700;
+                color: #000;
+              }
+
+              .ing-x {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                font-size: 28px;
+                font-weight: 900;
+                color: #000;
+                line-height: 1;
+                pointer-events: none;
               }
             </style>
           </head>
