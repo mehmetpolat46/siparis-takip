@@ -32,6 +32,7 @@ import HomeIcon from '@mui/icons-material/Home';
 import OrderCompleteModal from './OrderCompleteModal';
 import CartCustomizationPanel from './CartCustomizationPanel';
 import VirtualKeyboard from './VirtualKeyboard';
+import VoiceOrderAssistant from './VoiceOrderAssistant';
 import { useOrders } from '../context/OrderContext';
 import {
   ArrowBack as ArrowBackIcon,
@@ -784,6 +785,33 @@ const OrderScreen: React.FC = () => {
 
       {/* Sanal klavye — sağ alt köşe ikonu + panel */}
       <VirtualKeyboard onKey={handleVirtualKey} />
+
+      {/* Sipariş Asistanı */}
+      <VoiceOrderAssistant
+        cart={cart}
+        onAddToCart={(product, qty) => {
+          setCart((prev) => {
+            const existing = prev.find((i) => i.id === product.id);
+            if (existing) {
+              return prev.map((i) =>
+                i.id === product.id ? { ...i, quantity: i.quantity + qty } : i
+              );
+            }
+            return [...prev, { ...product, quantity: qty }];
+          });
+        }}
+        onRemoveFromCart={removeFromCart}
+        onClearCart={() => { setCart([]); setQuantities({}); }}
+        getTotal={calculateTotal}
+        orderType={orderType}
+        phone={phone}
+        address={address}
+        paymentType={paymentType}
+        onSetPhone={setPhone}
+        onSetAddress={setAddress}
+        onSetPayment={setPaymentType}
+        onOpenCustomization={() => setShowCustomizationPanel(true)}
+      />
 
       <Snackbar
         open={showSuccessMessage}
