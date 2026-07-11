@@ -120,7 +120,7 @@ const OrderCompleteModal: React.FC<OrderCompleteModalProps> = ({
       if (!customizedInstances || customizedInstances.length === 0) {
         return cart.map(item => {
           const feePerUnit = getGroupDeliveryFeePerUnit(item);
-          const unitPrice = item.price + feePerUnit;
+          const unitPrice = (item.price + feePerUnit) * item.quantity;
           return `<div class="item"><span class="item-name">${item.quantity}x ${item.name}</span><span class="dots"></span><span class="item-details">${unitPrice} TL</span></div>`;
         }).join('');
       }
@@ -157,12 +157,8 @@ const OrderCompleteModal: React.FC<OrderCompleteModalProps> = ({
             ingParenthesis = ` (${breadPrefix}${ingStr})`;
           }
 
-          return `
-            <div class="item kitchen-item">
-              <span class="item-name">${g.quantity}x ${itemName}</span>
-              <span class="dots"></span>
-              <span class="item-details">${lineTotalWithFee} TL</span>
-            </div>${ingParenthesis ? `<div class="ing-sub-line">${ingParenthesis.replace(/^\s*\(/, '').replace(/\)\s*$/, '')}</div>` : ''}`;
+          const ingContent = ingParenthesis ? ingParenthesis.replace(/^\s*\(/, '').replace(/\)\s*$/, '') : '';
+          return `<div class="item kitchen-item"><span class="item-name">${g.quantity}x ${itemName}</span><span class="dots"></span><span class="item-details">${lineTotalWithFee} TL</span></div>${ingContent ? `<div class="ing-sub-line">${ingContent}</div>` : ''}`;
         }).join('');
 
         return groupLines;
@@ -266,15 +262,15 @@ const OrderCompleteModal: React.FC<OrderCompleteModalProps> = ({
               }
 
               .item-name {
-                flex: 1;
-                min-width: 0;
-                word-wrap: break-word;
-                word-break: break-word;
-                white-space: normal;
+                flex: 0 0 auto;
+                max-width: 60%;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
                 color: #000;
                 font-weight: 600;
-                font-size: 20px;
-                margin-right: 6px;
+                font-size: 18px;
+                margin-right: 4px;
               }
 
               .item-details {
@@ -283,30 +279,29 @@ const OrderCompleteModal: React.FC<OrderCompleteModalProps> = ({
                 white-space: nowrap;
                 color: #000;
                 font-weight: 700;
-                font-size: 20px;
+                font-size: 18px;
               }
 
               .dots {
                 border-bottom: 1px dotted #000;
                 flex: 1;
-                min-width: 8px;
-                margin: 0 6px;
+                min-width: 6px;
+                margin: 0 4px;
                 position: relative;
                 top: -4px;
-                flex-shrink: 1;
               }
 
-              /* Malzeme satırı — dürüm adının altında, 300px soldan başlar */
+              /* Malzeme satırı — ürün adının hemen altında, tek satır */
               .ing-sub-line {
-                font-size: 16px;
-                font-weight: 700;
-                padding: 0 0 8px 300px;
+                font-size: 14px;
+                font-weight: 600;
+                padding: 0 0 6px 16px;
                 color: #000;
-                letter-spacing: 0.5px;
+                letter-spacing: 0.3px;
                 width: 100%;
-                word-wrap: break-word;
-                word-break: break-word;
-                white-space: normal;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
               }
 
               .total {
