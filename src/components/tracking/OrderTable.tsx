@@ -25,7 +25,6 @@ import {
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { PlatformOrder, OdemeYontemi } from '../../types/tracking';
-import PaymentBadge from './PaymentBadge';
 import PaymentStatusButton from './PaymentStatusButton';
 
 interface OrderTableProps {

@@ -30,7 +30,6 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import TwoWheelerIcon from '@mui/icons-material/TwoWheeler';
 import { useTracking } from '../../context/TrackingContext';
 import PanelBadge from '../../components/tracking/PanelBadge';
-import PaymentBadge from '../../components/tracking/PaymentBadge';
 import PaymentStatusButton from '../../components/tracking/PaymentStatusButton';
 import { PlatformOrder } from '../../types/tracking';
 import ThreeDIcon from '../../components/ThreeDIcon';

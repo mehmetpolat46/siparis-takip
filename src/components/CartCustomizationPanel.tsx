@@ -61,7 +61,6 @@ const TAKO_DEFAULT: Ingredient[] = [
   { name: 'Soğan',     abbr: 'soğ', active: true },
 ];
 
-const BREAD_OPTIONS = ['somun', 'lavaş', 'çift lavaş'] as const;
 const HATAY_BREAD_OPTIONS = ['lavaş', 'çift lavaş'] as const;
 const KLASIK_BREAD_OPTIONS = ['somun', 'lavaş', 'çift lavaş'] as const;
 
@@ -185,8 +184,6 @@ export const buildKitchenPayload = (
     let bread: string | undefined;
     const isCiftLavas = g.hatayBread === 'çift lavaş' || g.klasikBread === 'çift lavaş';
     const ekFiyat = isCiftLavas ? CIFT_LAVAS_FIYAT : 0;
-    const extraBreadCount = isCiftLavas ? g.quantity : 0; // Çift Lavaş seçilmişse her adet için +1 ekmek
-
     if (g.productType === 'hatay' && g.hatayIngredients) {
       bread = g.hatayBread; // Hatay için de ekmek bilgisini taşı
       ingredients = g.hatayIngredients.map((ig) => ({ name: ig.name, abbr: ig.abbr, active: ig.active }));
@@ -311,11 +308,6 @@ const IngBtn: React.FC<IngBtnProps> = ({ name, active, onToggle, color, activeTe
     <Box component="span">{name}</Box>
   </Box>
 );
-
-const formatBreadLabel = (bread: string) => {
-  if (bread === 'çift lavaş') return 'Çift Lavaş';
-  return bread.charAt(0).toUpperCase() + bread.slice(1);
-};
 
 const BreadSelector: React.FC<{ group: CartGroup; onChange: (g: CartGroup) => void; color: string; breadKey: 'hatayBread' | 'klasikBread' }> = ({ group, onChange, color, breadKey }) => {
   const options = breadKey === 'klasikBread' ? KLASIK_BREAD_OPTIONS : HATAY_BREAD_OPTIONS;
