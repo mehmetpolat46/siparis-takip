@@ -39,7 +39,7 @@ export const INGREDIENT_ABBR: Record<string, string> = {
 };
 
 // ─── Ürün tipi ───────────────────────────────────────────────────────────────
-export type ProductType = 'hatay' | 'klasik' | 'menu' | 'other';
+export type ProductType = 'hatay' | 'klasik' | 'menu' | 'tako' | 'other';
 
 // ─── Malzeme ─────────────────────────────────────────────────────────────────
 export interface Ingredient {
@@ -66,9 +66,11 @@ export interface CartGroup {
   category: string;
   productType: ProductType;
   hatayIngredients?: Ingredient[];
-  klasikBread?: 'somun' | 'lavaş';
+  hatayBread?: 'somun' | 'lavaş' | 'çift lavaş';
+  klasikBread?: 'somun' | 'lavaş' | 'çift lavaş';
   klasikIngredients?: Ingredient[];
   menuDonerType?: 'hatay' | 'klasik';
+  takoIngredients?: Ingredient[];
 }
 
 // ─── Mutfak yazıcı payload ───────────────────────────────────────────────────
@@ -87,6 +89,7 @@ export interface KitchenPrintItem {
   productType: ProductType;
   bread?: string;
   ingredients: KitchenIngredient[];
+  isCiftLavas?: boolean;
 }
 
 export interface KitchenPrintPayload {

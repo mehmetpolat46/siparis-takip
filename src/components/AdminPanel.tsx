@@ -33,10 +33,12 @@ import trLocale from 'date-fns/locale/tr';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import DashboardIcon from '@mui/icons-material/Dashboard';
 import { useNavigate } from 'react-router-dom';
 import { useOrders } from '../context/OrderContext';
 import HomeIcon from '@mui/icons-material/Home';
 import ExcelExport from './ExcelExport';
+import ThreeDIcon from './ThreeDIcon';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -88,6 +90,10 @@ const AdminPanel: React.FC = () => {
   const [resetDialogOpen, setResetDialogOpen] = useState(false);
   const [analysisCategory, setAnalysisCategory] = useState('all');
   const [analysisProductName, setAnalysisProductName] = useState('');
+  const [deleteConfirmation, setDeleteConfirmation] = useState<{
+    description: string;
+    action: () => void;
+  } | null>(null);
 
   // Save to localStorage whenever savedPhones changes
   useEffect(() => {
@@ -105,10 +111,22 @@ const AdminPanel: React.FC = () => {
   };
 
   const handleDeletePhoneAddress = (phone: string) => {
-    setSavedPhones((prev: SavedPhones) => {
-      const newPhones = { ...prev };
-      delete newPhones[phone];
-      return newPhones;
+    setDeleteConfirmation({
+      description: `${phone} numaralı kayıtlı telefon ve adres bilgisini silmek istiyor musunuz?`,
+      action: () => {
+        setSavedPhones((prev: SavedPhones) => {
+          const newPhones = { ...prev };
+          delete newPhones[phone];
+          return newPhones;
+        });
+      },
+    });
+  };
+
+  const requestOrderDeletion = (orderId: string) => {
+    setDeleteConfirmation({
+      description: 'Bu siparişi silmek istediğinize emin misiniz? Bu işlem geri alınamaz.',
+      action: () => deleteOrder(orderId),
     });
   };
 
@@ -366,6 +384,11 @@ const AdminPanel: React.FC = () => {
         let ekmek = 1;
         if (name.toLowerCase().includes('maksi')) ekmek = 2;
         return sum + ekmek * data.quantity;
+      }, 0)
+      +
+      // Çift Lavaş ekstra ekmek sayısı
+      filteredOrders.reduce((sum, order) => {
+        return sum + (order.ciftLavasSayisi || 0);
       }, 0),
       ''
     ]);
@@ -379,8 +402,8 @@ const AdminPanel: React.FC = () => {
   };
 
   return (
-    <Box sx={{ flexGrow: 1 }}>
-      <AppBar position="static" color="default" elevation={1}>
+    <Box sx={{ flexGrow: 1, minHeight: '100vh', bgcolor: '#f6f8fc' }}>
+      <AppBar position="static" color="default" elevation={0}>
         <Toolbar>
           <IconButton
             edge="start"
@@ -390,9 +413,19 @@ const AdminPanel: React.FC = () => {
           >
             <ArrowBackIcon />
           </IconButton>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            USLU DÖNER - Yönetim Paneli
-          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25, flexGrow: 1 }}>
+            <ThreeDIcon color="#1565c0" size={38}>
+              <DashboardIcon />
+            </ThreeDIcon>
+            <Box>
+              <Typography variant="subtitle2" color="text.secondary" sx={{ lineHeight: 1.1 }}>
+                USLU DÖNER
+              </Typography>
+              <Typography variant="h6" component="div" sx={{ lineHeight: 1.25 }}>
+                Yönetim Merkezi
+              </Typography>
+            </Box>
+          </Box>
           <ExcelExport data={orders} filename="uslu_doner_rapor" />
           <Button
             startIcon={<HomeIcon />}
@@ -404,8 +437,8 @@ const AdminPanel: React.FC = () => {
         </Toolbar>
       </AppBar>
 
-      <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-        <Paper sx={{ width: '100%', mb: 2 }}>
+      <Container maxWidth="lg" sx={{ mt: { xs: 2, md: 4 }, mb: 4 }}>
+        <Paper sx={{ width: '100%', mb: 2, overflow: 'hidden' }}>
           <Tabs
             value={tabValue}
             onChange={handleTabChange}
@@ -503,6 +536,11 @@ const AdminPanel: React.FC = () => {
                             let ekmek = 1;
                             if (name.toLowerCase().includes('maksi')) ekmek = 2;
                             return sum + ekmek * data.quantity;
+                          }, 0)
+                          +
+                          // Çift Lavaş ekstra ekmek sayısı
+                          filteredOrders.reduce((sum, order) => {
+                            return sum + (order.ciftLavasSayisi || 0);
                           }, 0)
                         }
                       </Typography>
@@ -610,7 +648,7 @@ const AdminPanel: React.FC = () => {
                         startIcon={<DeleteIcon />}
                         color="error"
                         sx={{ mt: 1 }}
-                        onClick={() => deleteOrder(order.id)}
+                        onClick={() => requestOrderDeletion(order.id)}
                       >
                         Siparişi Sil
                       </Button>
@@ -640,7 +678,7 @@ const AdminPanel: React.FC = () => {
                         startIcon={<DeleteIcon />}
                         color="error"
                         sx={{ mt: 1 }}
-                        onClick={() => deleteOrder(order.id)}
+                        onClick={() => requestOrderDeletion(order.id)}
                       >
                         Siparişi Sil
                       </Button>
@@ -859,6 +897,31 @@ const AdminPanel: React.FC = () => {
           <DialogActions>
             <Button onClick={() => setResetDialogOpen(false)}>İptal</Button>
             <Button onClick={handleDayReset} color="error">Evet, Sıfırla</Button>
+          </DialogActions>
+        </Dialog>
+
+        <Dialog
+          open={deleteConfirmation !== null}
+          onClose={() => setDeleteConfirmation(null)}
+        >
+          <DialogTitle>Silme işlemini onaylayın</DialogTitle>
+          <DialogContent>
+            <Typography>{deleteConfirmation?.description}</Typography>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setDeleteConfirmation(null)} color="inherit">
+              Vazgeç
+            </Button>
+            <Button
+              color="error"
+              variant="contained"
+              onClick={() => {
+                deleteConfirmation?.action();
+                setDeleteConfirmation(null);
+              }}
+            >
+              Sil
+            </Button>
           </DialogActions>
         </Dialog>
       </Container>

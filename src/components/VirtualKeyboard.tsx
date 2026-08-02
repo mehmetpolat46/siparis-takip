@@ -7,7 +7,7 @@
  * - Aktif inputu dışarıdan setActiveInput ile bağla
  */
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { Box, Slide, Typography, Fab } from '@mui/material';
 import KeyboardIcon from '@mui/icons-material/Keyboard';
 import KeyboardHideIcon from '@mui/icons-material/KeyboardHide';
@@ -32,32 +32,101 @@ const ROWS_UPPER = [
 
 // ─── Bileşen ──────────────────────────────────────────────────────────────────
 
-interface VirtualKeyboardProps {
-  /** Klavyenin yazacağı input setter — örn. setPhone, setAddress */
-  onKey?: (key: string) => void;
-}
-
-const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({ onKey }) => {
+const VirtualKeyboard: React.FC = () => {
   const [open, setOpen] = useState(false);
   const [shifted, setShifted] = useState(false);
   const [caps, setCaps] = useState(false);
+  const activeElementRef = useRef<HTMLInputElement | HTMLTextAreaElement | null>(null);
 
   const rows = (shifted || caps) ? ROWS_UPPER : ROWS_LOWER;
 
+  useEffect(() => {
+    const rememberFocusedInput = (event: FocusEvent) => {
+      const target = event.target;
+      if (
+        target instanceof HTMLInputElement ||
+        target instanceof HTMLTextAreaElement
+      ) {
+        activeElementRef.current = target;
+      }
+    };
+
+    document.addEventListener('focusin', rememberFocusedInput);
+    return () => {
+      document.removeEventListener('focusin', rememberFocusedInput);
+    };
+  }, []);
+
+  const insertText = useCallback((value: string) => {
+    const target = activeElementRef.current;
+
+    if (!target) {
+      return false;
+    }
+
+    // Sadece MUI giriş alanlarını ele alır; fiziksel klavye olaylarına müdahale etmez.
+    const isMuiInput =
+      (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) &&
+      target.classList.contains('MuiInputBase-input');
+    
+    if (!isMuiInput) {
+      return false;
+    }
+
+    if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) {
+      const start = target.selectionStart ?? target.value.length;
+      const end = target.selectionEnd ?? target.value.length;
+
+      let nextValue = target.value;
+
+      if (value === 'BACKSPACE') {
+        if (start === end && start > 0) {
+          nextValue = target.value.slice(0, start - 1) + target.value.slice(start);
+          target.setSelectionRange(start - 1, start - 1);
+        } else {
+          nextValue = target.value.slice(0, start) + target.value.slice(end);
+          target.setSelectionRange(start, start);
+        }
+      } else if (value === 'ENTER') {
+        // ENTER tuşu — focus'u kaldır
+        target.blur();
+      } else if (value === ' ') {
+        nextValue = `${target.value.slice(0, start)} ${target.value.slice(end)}`;
+        target.setSelectionRange(start + 1, start + 1);
+      } else {
+        nextValue = `${target.value.slice(0, start)}${value}${target.value.slice(end)}`;
+        target.setSelectionRange(start + value.length, start + value.length);
+      }
+
+      const valueSetter = Object.getOwnPropertyDescriptor(
+        target instanceof HTMLInputElement
+          ? HTMLInputElement.prototype
+          : HTMLTextAreaElement.prototype,
+        'value'
+      )?.set;
+      valueSetter?.call(target, nextValue);
+      target.dispatchEvent(new Event('input', { bubbles: true }));
+      return true;
+    }
+
+    return false;
+  }, []);
+
   const handleKey = useCallback((key: string) => {
-    onKey?.(key);
+    const isHandledByKeyboard = insertText(key);
+    if (!isHandledByKeyboard) return;
     // Shift bir tuş basışında sıfırlanır (caps lock hariç)
     if (shifted && !caps) setShifted(false);
-  }, [onKey, shifted, caps]);
+  }, [caps, insertText, shifted]);
 
   const KEY_SX = {
     minWidth: 44,
-    minHeight: 50,
+    minHeight: { xs: 48, sm: 56 },
     px: 1,
     m: 0.3,
-    borderRadius: 1.5,
+    borderRadius: '12px',
     bgcolor: '#fff',
-    border: '1.5px solid #bdbdbd',
+    border: '1px solid #dce6f2',
     color: '#1a1a1a',
     fontWeight: 700,
     fontSize: '1rem',
@@ -67,10 +136,18 @@ const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({ onKey }) => {
     cursor: 'pointer',
     userSelect: 'none' as const,
     WebkitTapHighlightColor: 'transparent',
-    boxShadow: '0 2px 4px rgba(0,0,0,0.12)',
-    '&:active': { bgcolor: '#e3f2fd', transform: 'scale(0.96)' },
-    transition: 'all 0.08s',
+    boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.9), 0 3px 0 #cdd8e5, 0 6px 10px rgba(15,23,42,0.14)',
+    transition: 'all 120ms cubic-bezier(0.4, 0, 0.2, 1)',
     flexShrink: 0,
+    '&:active': {
+      bgcolor: '#e3f2fd',
+      transform: 'translateY(2px)',
+      boxShadow: 'inset 0 1px 2px rgba(15,23,42,0.12), 0 1px 0 #cdd8e5',
+    },
+    '&:hover': {
+      borderColor: '#1976d2',
+      boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.9), 0 3px 0 #b7d2ed, 0 7px 13px rgba(15,23,42,0.16)',
+    },
   };
 
   return (
@@ -78,17 +155,27 @@ const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({ onKey }) => {
       {/* ── Sağ alt klavye ikonu ── */}
       <Fab
         size="medium"
+        aria-label={open ? 'Sanal klavyeyi kapat' : 'Sanal klavyeyi aç'}
+        title={open ? 'Kapat' : 'Sanal Türkçe Klavye'}
         onPointerDown={(e) => { e.preventDefault(); setOpen((v) => !v); }}
         sx={{
           position: 'fixed',
           bottom: 24,
           right: 24,
           zIndex: 1400,
-          bgcolor: open ? '#1a237e' : '#fff',
-          color: open ? '#fff' : '#1a237e',
-          border: '2px solid #1a237e',
-          boxShadow: 4,
-          '&:hover': { bgcolor: open ? '#283593' : '#e8eaf6' },
+          bgcolor: open ? '#1565c0' : '#fff',
+          color: open ? '#fff' : '#1565c0',
+          border: '1px solid rgba(21,101,192,0.22)',
+          boxShadow: open ? '0 4px 0 #0d47a1, 0 10px 18px rgba(21,101,192,0.3)' : '0 4px 0 #c7d9ed, 0 10px 18px rgba(15,23,42,0.16)',
+          transition: 'all 200ms ease-in-out',
+          '&:hover': {
+            bgcolor: open ? '#0d47a1' : '#eef7ff',
+            boxShadow: '0 4px 0 #0d47a1, 0 13px 22px rgba(21,101,192,0.34)',
+            transform: 'translateY(-2px)',
+          },
+          '&:active': {
+            transform: 'scale(0.95)',
+          },
         }}
       >
         {open ? <KeyboardHideIcon /> : <KeyboardIcon />}
@@ -97,18 +184,22 @@ const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({ onKey }) => {
       {/* ── Klavye paneli ── */}
       <Slide direction="up" in={open} mountOnEnter unmountOnExit>
         <Box
+          role="toolbar"
+          aria-label="Sanal Türkçe Klavye"
           sx={{
             position: 'fixed',
             bottom: 0,
             left: 0,
             right: 0,
             zIndex: 1300,
-            bgcolor: '#eceff1',
-            borderTop: '2px solid #b0bec5',
-            boxShadow: '0 -4px 20px rgba(0,0,0,0.18)',
+            bgcolor: '#f5f8fc',
+            backgroundImage: 'linear-gradient(to bottom, #ffffff, #edf3fa)',
+            borderTop: '3px solid #1976d2',
+            boxShadow: '0 -12px 32px rgba(15,23,42,0.18)',
             px: 1,
             pt: 1,
             pb: 1.5,
+            backdropFilter: 'blur(8px)',
           }}
         >
           {/* Satırlar */}

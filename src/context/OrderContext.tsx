@@ -17,11 +17,13 @@ export interface Order {
   address?: string;
   paymentType?: 'cash' | 'card';
   total: number;
+  /** Çift Lavaş seçilen sipariş sayısı (ekstra ekmek adedi) */
+  ciftLavasSayisi?: number;
 }
 
 interface OrderContextType {
   orders: Order[];
-  addOrder: (order: Omit<Order, 'id' | 'date'>) => void;
+  addOrder: (order: Omit<Order, 'id' | 'date'>) => string;
   deleteOrder: (id: string) => void;
   getSalesStats: () => {
     totalSales: number;
@@ -42,21 +44,16 @@ const OrderContext = createContext<OrderContextType | undefined>(undefined);
 
 export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [orders, setOrders] = useState<Order[]>(() => {
-    // localStorage'dan siparişleri yükle
     const savedOrders = localStorage.getItem('orders');
     if (savedOrders) {
-      // Tarihleri Date nesnesine dönüştür
       return JSON.parse(savedOrders, (key, value) => {
-        if (key === 'date') {
-          return new Date(value);
-        }
+        if (key === 'date') return new Date(value);
         return value;
       });
     }
     return [];
   });
 
-  // Siparişler değiştiğinde localStorage'a kaydet
   useEffect(() => {
     localStorage.setItem('orders', JSON.stringify(orders));
   }, [orders]);
@@ -68,6 +65,7 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       date: new Date(),
     };
     setOrders((prev) => [...prev, newOrder]);
+    return newOrder.id;
   };
 
   const deleteOrder = (id: string) => {
@@ -128,4 +126,4 @@ export const useOrders = () => {
     throw new Error('useOrders must be used within an OrderProvider');
   }
   return context;
-}; 
+};

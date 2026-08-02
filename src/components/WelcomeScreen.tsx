@@ -1,27 +1,32 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Box, Button, Container, Typography } from '@mui/material';
+import {
+  Box,
+  Button,
+  Container,
+  Typography,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Card,
+  CardContent,
+  useTheme,
+  Chip,
+  Grid,
+} from '@mui/material';
 import RestaurantIcon from '@mui/icons-material/Restaurant';
 import DeliveryDiningIcon from '@mui/icons-material/DeliveryDining';
+import TrackChangesIcon from '@mui/icons-material/TrackChanges';
+import DeleteIcon from '@mui/icons-material/Delete';
+import DashboardIcon from '@mui/icons-material/Dashboard';
 import { useOrders } from '../context/OrderContext';
-import Dialog from '@mui/material/Dialog';
-import DialogTitle from '@mui/material/DialogTitle';
-import DialogContent from '@mui/material/DialogContent';
-import DialogActions from '@mui/material/DialogActions';
-
-// Parlayan yazı animasyonu için stil ekle
-const shineKeyframes = `
-@keyframes shine {
-  0% {
-    background-position: -500px 0;
-  }
-  100% {
-    background-position: 500px 0;
-  }
-}`;
+import LocalDataBackup from './LocalDataBackup';
+import ThreeDIcon from './ThreeDIcon';
 
 const WelcomeScreen: React.FC = () => {
   const navigate = useNavigate();
+  const theme = useTheme();
   const { orders, deleteOrder } = useOrders();
   const [confirmOpen, setConfirmOpen] = useState(false);
 
@@ -46,150 +51,287 @@ const WelcomeScreen: React.FC = () => {
     setConfirmOpen(false);
   };
 
+  const actionCardSx = {
+    minHeight: { xs: 150, sm: 180 },
+    p: { xs: 2, sm: 2.5 },
+    borderRadius: '24px',
+    justifyContent: 'flex-start',
+    gap: 2,
+    textAlign: 'left',
+    overflow: 'hidden',
+    position: 'relative',
+    transition: 'transform 220ms ease, box-shadow 220ms ease',
+    '&::before': {
+      content: '""',
+      position: 'absolute',
+      inset: 1,
+      borderRadius: '23px',
+      border: '1px solid rgba(255,255,255,0.35)',
+      pointerEvents: 'none',
+    },
+    '&:hover': {
+      transform: 'translateY(-6px) scale(1.015)',
+      boxShadow: '0 18px 35px rgba(16,24,40,0.22)',
+    },
+  };
+
   return (
-    <>
-      <style>{shineKeyframes}</style>
-      <Container maxWidth="sm" sx={{ px: { xs: 1, sm: 2 } }}>
-        <Button
-          variant="contained"
-          color="success"
-          onClick={handleDeleteLastOrder}
-          disabled={orders.length === 0}
-          sx={{
-            position: 'fixed',
-            left: 24,
-            bottom: 24,
-            zIndex: 1300,
-            fontWeight: 600,
-            px: 3,
-            py: 1.5,
-            borderRadius: 2,
-            boxShadow: 3
-          }}
-        >
-          Son Siparişi Sil
-        </Button>
-        <Dialog open={confirmOpen} onClose={handleCancelDelete}>
-          <DialogTitle>Son Siparişi Sil</DialogTitle>
-          <DialogContent>
-            <Typography>Son siparişi silmek istediğinize emin misiniz?</Typography>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleCancelDelete} color="inherit">İptal</Button>
-            <Button onClick={handleConfirmDelete} color="success" variant="contained">Evet, Sil</Button>
-          </DialogActions>
-        </Dialog>
-        <Box
-          sx={{
-            minHeight: '100vh',
-            display: 'flex',
-            flexDirection: { xs: 'column', md: 'row' },
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: { xs: 0, md: 0 },
-            position: 'relative',
-          }}
-        >
-          {/* Sol maskot */}
-          <Box
+    <Box
+      sx={{
+        minHeight: '100vh',
+        background: `linear-gradient(135deg, ${theme.palette.primary.light}15 0%, ${theme.palette.secondary.light}15 100%)`,
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        p: { xs: 2, sm: 3 },
+      }}
+    >
+      <Container maxWidth="sm">
+        {/* Header */}
+        <Box sx={{ textAlign: 'center', mb: { xs: 4, sm: 6 } }}>
+          <Chip
+            label="YEREL SİPARİŞ MERKEZİ"
+            size="small"
             sx={{
-              width: { xs: 0, md: 300 },
-              height: { xs: 0, md: '100%' },
-              display: { xs: 'none', md: 'flex' },
-              alignItems: 'center',
-              justifyContent: 'center',
+              mb: 1.5,
+              px: 0.5,
+              fontWeight: 800,
+              letterSpacing: 0.7,
+              color: 'primary.dark',
+              bgcolor: 'rgba(255,255,255,0.72)',
+              border: '1px solid rgba(25,118,210,0.16)',
+            }}
+          />
+          <Typography
+            component="h1"
+            variant="h1"
+            sx={{
+              background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 50%, ${theme.palette.error.main} 100%)`,
+              backgroundClip: 'text',
+              WebkitBackgroundClip: 'text',
+              color: 'transparent',
+              mb: 1,
+              animation: 'shimmer 3s infinite',
+              '@keyframes shimmer': {
+                '0%': { backgroundPosition: '0% center' },
+                '50%': { backgroundPosition: '100% center' },
+                '100%': { backgroundPosition: '0% center' },
+              },
             }}
           >
-            <img src="/uslu_maskot.png" alt="Uslu Maskot" style={{ width: 260, maxHeight: '80vh', objectFit: 'contain' }} />
-          </Box>
-          {/* Orta içerik */}
-          <Box sx={{ flex: 1, maxWidth: { xs: '100%', sm: 400, md: 700 }, mx: 'auto', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: { xs: 'auto', md: '100vh' }, py: { xs: 4, md: 0 } }}>
-            <Typography
-              variant="h1"
-              component="h1"
-              align="center"
-              gutterBottom
+            USLU DÖNER
+          </Typography>
+          <Typography
+            variant="body1"
+            color="text.secondary"
+            sx={{
+              fontSize: { xs: '0.95rem', sm: '1.1rem' },
+              fontWeight: 500,
+            }}
+          >
+            Sipariş Yönetim Sistemi
+          </Typography>
+        </Box>
+
+        {/* Main Action Buttons */}
+        <Grid
+          container
+          spacing={2}
+          sx={{ mb: { xs: 4, sm: 6 } }}
+        >
+          <Grid item xs={12} sm={6}>
+            <Button
+              fullWidth
+              variant="contained"
+              onClick={() => handleOrderType('dine-in')}
+              aria-label="İçeride sipariş oluştur"
               sx={{
-                fontWeight: 900,
-                fontSize: { xs: '2rem', sm: '2.5rem', md: '5rem' },
-                letterSpacing: 2,
-                mb: { xs: 2, md: 4 },
-                userSelect: 'none',
-                textShadow: '2px 2px 8px rgba(0,0,0,0.12)',
-                position: 'relative',
-                color: 'inherit',
-                display: 'inline-block',
+                ...actionCardSx,
+                background: 'linear-gradient(145deg, #ef5350 0%, #d32f2f 55%, #9f1d1d 100%)',
+                color: '#fff',
               }}
             >
-              <span style={{ color: '#e53935' }}>U</span>
-              <span style={{ color: '#fb8c00' }}>S</span>
-              <span style={{ color: '#fdd835' }}>L</span>
-              <span style={{ color: '#43a047' }}>U</span>
-              &nbsp;
-              <span style={{ color: '#1e88e5' }}>D</span>
-              <span style={{ color: '#8e24aa' }}>Ö</span>
-              <span style={{ color: '#d81b60' }}>N</span>
-              <span style={{ color: '#00bcd4' }}>E</span>
-              <span style={{ color: '#ffb300' }}>R</span>
-              {/* Parlak ışık efekti */}
-              <Box
-                component="span"
+              <ThreeDIcon color="#a81818" size={62}>
+                <RestaurantIcon />
+              </ThreeDIcon>
+              <Box>
+                <Typography component="span" display="block" variant="h6" fontWeight={800}>
+                  İçeride Sipariş
+                </Typography>
+                <Typography component="span" display="block" variant="body2" sx={{ opacity: 0.84, mt: 0.5 }}>
+                  Masa ve paket siparişleri
+                </Typography>
+              </Box>
+            </Button>
+          </Grid>
+
+          <Grid item xs={12} sm={6}>
+            <Button
+              fullWidth
+              variant="contained"
+              onClick={() => handleOrderType('delivery')}
+              aria-label="Dışarı sipariş oluştur"
+              sx={{
+                ...actionCardSx,
+                background: 'linear-gradient(145deg, #42a5f5 0%, #1976d2 55%, #0d47a1 100%)',
+                color: '#fff',
+              }}
+            >
+              <ThreeDIcon color="#0d47a1" size={62}>
+                <DeliveryDiningIcon />
+              </ThreeDIcon>
+              <Box>
+                <Typography component="span" display="block" variant="h6" fontWeight={800}>
+                  Dışarıya Sipariş
+                </Typography>
+                <Typography component="span" display="block" variant="body2" sx={{ opacity: 0.84, mt: 0.5 }}>
+                  Adres ve kurye siparişleri
+                </Typography>
+              </Box>
+            </Button>
+          </Grid>
+
+          <Grid item xs={12}>
+            <Button
+              fullWidth
+              variant="contained"
+              onClick={() => navigate('/tracking')}
+              aria-label="Sipariş takibine git"
+              sx={{
+                ...actionCardSx,
+                minHeight: { xs: 122, sm: 132 },
+                background: 'linear-gradient(135deg, #ffffff 0%, #edf7ff 100%)',
+                color: 'info.dark',
+                border: '1px solid rgba(2,136,209,0.22)',
+                boxShadow: '0 8px 20px rgba(2,136,209,0.12)',
+                '&:hover': {
+                  ...actionCardSx['&:hover'],
+                  background: 'linear-gradient(135deg, #ffffff 0%, #dff2ff 100%)',
+                },
+              }}
+            >
+              <ThreeDIcon color="#0288d1" size={58}>
+                <TrackChangesIcon />
+              </ThreeDIcon>
+              <Box sx={{ flex: 1 }}>
+                <Typography component="span" display="block" variant="h6" fontWeight={800}>
+                  Sipariş & Kurye Takibi
+                </Typography>
+                <Typography component="span" display="block" variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                  Platform siparişlerini ve tahsilatları tek ekrandan yönetin
+                </Typography>
+              </Box>
+            </Button>
+          </Grid>
+        </Grid>
+
+        {/* Yönetim ve silme işlemleri */}
+        <Grid container spacing={2} sx={{ mb: 2 }}>
+          <Grid item xs={12} sm={orders.length > 0 ? 6 : 12}>
+            <Card
+              elevation={0}
+              sx={{
+                height: '100%',
+                border: '1px solid rgba(25,118,210,0.22)',
+                background: 'linear-gradient(135deg, #ffffff, #edf7ff)',
+              }}
+            >
+              <CardContent sx={{ p: '16px !important' }}>
+                <Button
+                  fullWidth
+                  startIcon={<DashboardIcon />}
+                  variant="contained"
+                  onClick={() => navigate('/admin')}
+                  sx={{
+                    py: 1.25,
+                    justifyContent: 'flex-start',
+                  }}
+                >
+                  Admin Paneli
+                </Button>
+              </CardContent>
+            </Card>
+          </Grid>
+
+          {orders.length > 0 && (
+            <Grid item xs={12} sm={6}>
+              <Card
+                elevation={0}
                 sx={{
-                  position: 'absolute',
-                  left: 0,
-                  top: 0,
-                  width: '100%',
                   height: '100%',
-                  pointerEvents: 'none',
-                  background: 'linear-gradient(120deg, transparent 0%, rgba(255,255,255,0.7) 40%, rgba(255,255,255,0.9) 50%, rgba(255,255,255,0.7) 60%, transparent 100%)',
-                  backgroundSize: '200% 100%',
-                  mixBlendMode: 'lighten',
-                  animation: 'shine 2s linear infinite',
-                  borderRadius: 2,
+                  border: '1px solid rgba(211,47,47,0.22)',
+                  background: 'linear-gradient(135deg, #ffffff, #fff2f2)',
                 }}
-              />
-            </Typography>
-            <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: { xs: 2, sm: 3 }, width: '100%', justifyContent: 'center', alignItems: 'center', mt: { xs: 2, md: 0 } }}>
-              <Button
-                variant="contained"
-                size="large"
-                fullWidth={true}
-                startIcon={<RestaurantIcon />}
-                onClick={() => handleOrderType('dine-in')}
-                sx={{ py: { xs: 2, md: 4 }, fontSize: { xs: '1rem', sm: '1.3rem', md: '1.5rem' }, minHeight: { xs: 48, md: 80 }, minWidth: 0, width: { xs: '100%', sm: 220, md: 300 } }}
-                color="error"
               >
-                İçeri
-              </Button>
-              <Button
-                variant="contained"
-                size="large"
-                fullWidth={true}
-                startIcon={<DeliveryDiningIcon />}
-                onClick={() => handleOrderType('delivery')}
-                sx={{ py: { xs: 2, md: 4 }, fontSize: { xs: '1rem', sm: '1.3rem', md: '1.5rem' }, minHeight: { xs: 48, md: 80 }, minWidth: 0, width: { xs: '100%', sm: 220, md: 300 } }}
-                color="primary"
-              >
-                Kurye
-              </Button>
-            </Box>
-          </Box>
-          {/* Sağ maskot */}
-          <Box
-            sx={{
-              width: { xs: 0, md: 300 },
-              height: { xs: 0, md: '100%' },
-              display: { xs: 'none', md: 'flex' },
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
+                <CardContent sx={{ p: '16px !important' }}>
+                  <Button
+                    fullWidth
+                    variant="outlined"
+                    startIcon={<DeleteIcon />}
+                    onClick={handleDeleteLastOrder}
+                    color="error"
+                    sx={{ py: 1.25, justifyContent: 'flex-start' }}
+                  >
+                    Son Siparişi Sil
+                  </Button>
+                </CardContent>
+              </Card>
+            </Grid>
+          )}
+        </Grid>
+        <Box
+          sx={{
+            mt: 2,
+            pt: 2,
+            borderTop: '1px solid',
+            borderColor: 'divider',
+          }}
+        >
+          <Typography
+            variant="caption"
+            color="text.secondary"
+            align="center"
+            display="block"
+            sx={{ mb: 0.5 }}
           >
-            <img src="/uslu_maskot.png" alt="Uslu Maskot" style={{ width: 260, maxHeight: '80vh', objectFit: 'contain', transform: 'scaleX(-1)' }} />
-          </Box>
+            Veriler bu cihazda saklanır. Güncellemeden önce yedek alabilirsiniz.
+          </Typography>
+          <LocalDataBackup />
         </Box>
+
+        {/* Delete Confirmation Dialog */}
+        <Dialog
+          open={confirmOpen}
+          onClose={handleCancelDelete}
+          PaperProps={{
+            sx: { borderRadius: '16px' },
+          }}
+        >
+          <DialogTitle sx={{ fontWeight: 600 }}>
+            Son Siparişi Sil
+          </DialogTitle>
+          <DialogContent>
+            <Typography sx={{ mt: 2 }}>
+              Bu işlem geri alınamaz. Emin misiniz?
+            </Typography>
+          </DialogContent>
+          <DialogActions sx={{ p: 2 }}>
+            <Button onClick={handleCancelDelete} variant="outlined">
+              İptal
+            </Button>
+            <Button
+              onClick={handleConfirmDelete}
+              variant="contained"
+              color="error"
+            >
+              Sil
+            </Button>
+          </DialogActions>
+        </Dialog>
       </Container>
-    </>
+    </Box>
   );
 };
 
-export default WelcomeScreen; 
+export default WelcomeScreen;

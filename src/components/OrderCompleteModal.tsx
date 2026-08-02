@@ -16,7 +16,9 @@ import {
   IconButton,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
+import { format } from 'date-fns';
 import { useOrders } from '../context/OrderContext';
+import { useTracking } from '../context/TrackingContext';
 import { CartItem, OrderItem, CartGroup, KitchenPrintPayload } from '../types';
 
 interface OrderCompleteModalProps {
@@ -48,6 +50,7 @@ const OrderCompleteModal: React.FC<OrderCompleteModalProps> = ({
   kitchenPayload,
 }) => {
   const { addOrder } = useOrders();
+  const { addOrder: addTrackingOrder } = useTracking();
   const [receiptNumber, setReceiptNumber] = useState(() => {
     const savedNumber = localStorage.getItem('receiptNumber');
     const savedDate = localStorage.getItem('receiptDate');
@@ -89,6 +92,29 @@ const OrderCompleteModal: React.FC<OrderCompleteModalProps> = ({
     return 0;
   };
 
+  // Ürün adına göre ekmek sayısını hesapla
+  const getBreadCountForItem = (item: { name: string; category: string }, quantity: number): number => {
+    const lowerName = item.name.toLowerCase();
+    
+    // Hatay Maxi = 2 ekmek
+    if (lowerName.includes('maksi') || lowerName.includes('maxi')) {
+      return quantity * 2;
+    }
+    
+    // Klasik, Hatay Usulü Eko, Normal, Porsiyon, Tavuk Menü = 1 ekmek
+    if (
+      item.category === 'Klasik Dönerler' ||
+      (item.category === 'Hatay Usulü Dönerler' && (lowerName.includes('eko') || lowerName.includes('normal'))) ||
+      item.category === 'Porsiyonlar' ||
+      (item.category === 'Menüler' && lowerName.includes('tavuk'))
+    ) {
+      return quantity * 1;
+    }
+    
+    // Diğer ürünler = 0 ekmek (taklalar, içecekler vs.)
+    return 0;
+  };
+
   const handleComplete = () => {
     const orderItems: OrderItem[] = cart.map(item => ({
       ...item,
@@ -97,6 +123,32 @@ const OrderCompleteModal: React.FC<OrderCompleteModalProps> = ({
       name: item.name.toLowerCase().includes('lavaş') ? `${item.name} (Ekstra Lavaş)` : item.name
     }));
 
+    // ─── Ekmek sayısı (fiş için) ─────────────────────────────────────
+    // Her ürün adına göre ekmek sayısı + çift lavaş ise +1
+    const ekstraBreadCount = customizedInstances && customizedInstances.length > 0
+      ? customizedInstances.reduce((sum, g) => {
+          let breadCount = getBreadCountForItem(g, g.quantity);
+          // Çift lavaş seçilmişse +1 ekmek her adet için
+          if (g.hatayBread === 'çift lavaş' || g.klasikBread === 'çift lavaş') {
+            breadCount += g.quantity;
+          }
+          return sum + breadCount;
+        }, 0)
+      : cart.reduce((sum, item) => {
+          let breadCount = getBreadCountForItem(item, item.quantity);
+          return sum + breadCount;
+        }, 0);
+
+    // Çift lavaş seçilmiş grup sayısını hesapla (AdminPanel kasa için)
+    const ciftLavasCount = customizedInstances && customizedInstances.length > 0
+      ? customizedInstances.reduce((sum, g) => {
+          if (g.hatayBread === 'çift lavaş' || g.klasikBread === 'çift lavaş') {
+            return sum + g.quantity;
+          }
+          return sum;
+        }, 0)
+      : 0;
+
     addOrder({
       type: initialOrderType,
       items: orderItems,
@@ -104,7 +156,20 @@ const OrderCompleteModal: React.FC<OrderCompleteModalProps> = ({
       phone: initialOrderType === 'delivery' ? phone : undefined,
       address: initialOrderType === 'delivery' ? address : undefined,
       paymentType: initialOrderType === 'delivery' ? paymentType : undefined,
+      ciftLavasSayisi: ciftLavasCount,  // ← Çift lavaş adet sayısı
     });
+
+    // ─── Kurye siparişi ise TrackingContext'e otomatik gönder ───────────────────────
+    if (initialOrderType === 'delivery') {
+      addTrackingOrder({
+        panel: 'telefon', // manuel telefon siparişi
+        fiyat: kitchenPayload ? kitchenPayload.total : total,
+        ekmekSayisi: ekstraBreadCount,
+        odemeYontemi: paymentType === 'cash' ? 'nakit' : 'kart',
+        kurye: null, // garson daha sonra kurye atayacak
+        tarih: format(new Date(), 'yyyy-MM-dd')
+      });
+    }
 
     // ─── Mutfak adisyon satırı üretici (CartGroup bazlı) ─────────────────────
     const buildKitchenLine = (): string => {
@@ -137,33 +202,37 @@ const OrderCompleteModal: React.FC<OrderCompleteModalProps> = ({
         const groupLines = itemGroups.map(g => {
           const pType    = g.productType;
           const menuType = g.menuDonerType;
-          const unitPriceWithFee = g.basePrice + feePerUnit;
+          const unitPriceWithFee = g.basePrice + (g.hatayBread === 'çift lavaş' || g.klasikBread === 'çift lavaş' ? 15 : 0) + feePerUnit;
           const lineTotalWithFee = unitPriceWithFee * g.quantity;
+          const isCiftLavas = g.hatayBread === 'çift lavaş' || g.klasikBread === 'çift lavaş';
 
           const ings = (pType === 'hatay' || menuType === 'hatay')  ? g.hatayIngredients  :
-                       (pType === 'klasik' || menuType === 'klasik') ? g.klasikIngredients : undefined;
+                       (pType === 'klasik' || menuType === 'klasik') ? g.klasikIngredients : 
+                       pType === 'tako' ? g.takoIngredients : undefined;
 
           // Menü ise döner tipi etiketi
           const menuTypeLabel = pType === 'menu' && menuType
             ? `<span class="menu-type-label">${menuType === 'hatay' ? '🌶 Hatay Usulü' : '🥙 Klasik'}</span> `
             : '';
 
-          // Malzeme parantezi: (pat, tu, tvk, sos, ✕may)
+          // ÇİFT LAVAŞ yazısı — Sadece bir kez, başında
+          const ciftLavasLabel = isCiftLavas
+            ? '<span style="font-weight: 900; font-size: 16px; color: #000;">ÇİFT LAVAŞ</span><br/>'
+            : '';
+
+          // Malzeme parantezi: (pat - tur - tvk - sos - ✕may)
           let ingParenthesis = '';
           if (ings && ings.length > 0) {
             const ingStr = ings
               .map(ig => ig.active
                 ? ig.abbr
                 : `<span class="ing-removed"><span class="ing-x">✕</span>${ig.abbr}</span>`)
-              .join('  ');
-            const breadPrefix = (pType === 'klasik' || menuType === 'klasik') && g.klasikBread
-              ? `${g.klasikBread.toUpperCase()}, `
-              : '';
-            ingParenthesis = ` (${breadPrefix}${ingStr})`;
+              .join(' - ');
+            ingParenthesis = ` (${ingStr})`;
           }
 
           const ingContent = ingParenthesis ? ingParenthesis.replace(/^\s*\(/, '').replace(/\)\s*$/, '') : '';
-          const subLine = menuTypeLabel + ingContent;
+          const subLine = ciftLavasLabel + menuTypeLabel + ingContent;
           return `<div class="item kitchen-item"><span class="item-name">${g.quantity}x ${itemName}</span><span class="dots"></span><span class="item-details">${lineTotalWithFee} TL</span></div>${subLine ? `<div class="ing-sub-line">${subLine}</div>` : ''}`;
         }).join('');
 
@@ -399,8 +468,9 @@ const OrderCompleteModal: React.FC<OrderCompleteModalProps> = ({
               ${initialOrderType === 'delivery' ? `<br/>
                   <p>Telefon: ${phone}</p> <br/><br/><br/>
                   <p>Adres: ${address}</p><br/><br/><br/><br/><br/><br/>
-                  <p>Ödeme: ${paymentType === 'cash' ? 'Nakit' : 'Kart'}</p>
+                  <p style="color: ${paymentType === 'cash' ? '#2E7D32' : '#1565C0'}; font-weight: 900;">Ödeme: ${paymentType === 'cash' ? 'NAKİT' : 'KART'}</p>
               ` : ''}
+              ${ekstraBreadCount > 0 ? `<br/><p style="font-weight: 900; color: #000;">EKMEK: +${ekstraBreadCount}</p>` : ''}
             </div>
             
             <div class="items">

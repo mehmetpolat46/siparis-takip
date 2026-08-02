@@ -29,10 +29,14 @@ import PrintIcon from '@mui/icons-material/Print';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import SettingsIcon from '@mui/icons-material/Settings';
 import HomeIcon from '@mui/icons-material/Home';
+import RestaurantIcon from '@mui/icons-material/Restaurant';
+import DeliveryDiningIcon from '@mui/icons-material/DeliveryDining';
+import FastfoodIcon from '@mui/icons-material/Fastfood';
+import LocalDrinkIcon from '@mui/icons-material/LocalDrink';
 import OrderCompleteModal from './OrderCompleteModal';
 import CartCustomizationPanel from './CartCustomizationPanel';
-import VirtualKeyboard from './VirtualKeyboard';
-import VoiceOrderAssistant from './VoiceOrderAssistant';
+import ThreeDIcon from './ThreeDIcon';
+import { PortionIcon, WrapIcon } from './FoodIllustrations';
 import { useOrders } from '../context/OrderContext';
 import {
   ArrowBack as ArrowBackIcon,
@@ -58,6 +62,19 @@ const categories = [
   'İçecekler & Atıştırmalık',
 ];
 
+const getProductVisual = (category: string) => {
+  if (category === 'İçecekler & Atıştırmalık') {
+    return { color: '#0288d1', icon: <LocalDrinkIcon /> };
+  }
+  if (category === 'Porsiyonlar') {
+    return { color: '#2e7d32', icon: <PortionIcon /> };
+  }
+  if (category === 'Takolar') {
+    return { color: '#f57c00', icon: <FastfoodIcon /> };
+  }
+  return { color: '#d32f2f', icon: <WrapIcon /> };
+};
+
 const products: Product[] = [
   // Hatay Usulü Dönerler
   {
@@ -78,37 +95,9 @@ const products: Product[] = [
     price: 220,
     category: 'Hatay Usulü Dönerler',
   },
-  {
-    id: 4,
-    name: 'Hatay Usulü ET Eko Döner',
-    price: 230,
-    category: 'Hatay Usulü Dönerler',
-  },
-  {
-    id: 5,
-    name: 'Hatay Usulü ET Normal Döner',
-    price: 270,
-    category: 'Hatay Usulü Dönerler',
-  },
-  {
-    id: 6,
-    name: 'Hatay Usulü ET Maksi Döner',
-    price: 330,
-    category: 'Hatay Usulü Dönerler',
-  },
-     {
-    id: 6725,
-    name: 'Mercimek Çorbası',
-    price: 90,
-    category: 'Hatay Usulü Dönerler',
-  },
+ 
 
-  {
-    id: 'hud-lavas',
-    name: 'Ekstra Lavaş',
-    price: 15,
-    category: 'Hatay Usulü Dönerler',
-  },
+ 
 
   // Klasik Dönerler
   {
@@ -123,24 +112,8 @@ const products: Product[] = [
     price: 170,
     category: 'Klasik Dönerler',
   },
-  {
-    id: 9,
-    name: 'Klasik ET Eko Döner',
-    price: 230,
-    category: 'Klasik Dönerler',
-  },
-  {
-    id: 10,
-    name: 'Klasik ET Normal Döner',
-    price: 270,
-    category: 'Klasik Dönerler',
-  },
-  {
-    id: 'hud-lavas',
-    name: 'Ekstra Lavaş',
-    price: 15,
-    category: 'Klasik Dönerler',
-  },
+  
+ 
 
   // Takolar
   {
@@ -155,24 +128,8 @@ const products: Product[] = [
     price: 220,
     category: 'Takolar',
   },
-  {
-    id: 13,
-    name: 'ET Tekli Tako',
-    price: 160,
-    category: 'Takolar',
-  },
-  {
-    id: 14,
-    name: 'ET İkili Tako',
-    price: 300,
-    category: 'Takolar',
-  },
-  {
-    id: 15,
-    name: 'Karışık Combo Tako',
-    price: 230,
-    category: 'Takolar',
-  },
+ 
+ 
   
 
   // Porsiyonlar
@@ -188,24 +145,7 @@ const products: Product[] = [
     price: 270,
     category: 'Porsiyonlar',
   },
-  {
-    id: 18,
-    name: 'ET Döner Porsiyon',
-    price: 360,
-    category: 'Porsiyonlar',
-  },
-  {
-    id: 19,
-    name: 'Pilav Üstü ET Döner Porsiyon',
-    price: 380,
-    category: 'Porsiyonlar',
-  },
-  {
-    id: 'hud-lavas',
-    name: 'Ekstra Lavaş',
-    price: 15,
-    category: 'Porsiyonlar',
-  },
+  
 
   // Menüler
   {
@@ -214,18 +154,8 @@ const products: Product[] = [
     price: 260,
     category: 'Menüler',
   },
-  {
-    id: 21,
-    name: 'ET Döner Menü',
-    price: 330,
-    category: 'Menüler',
-  },
-  {
-    id: 'm-lavas',
-    name: 'Ekstra Lavaş',
-    price: 15,
-    category: 'Menüler',
-  },
+  
+ 
 
   // İçecekler & Atıştırmalık
   {
@@ -403,33 +333,78 @@ const OrderScreen: React.FC = () => {
     return 0;
   };
 
-  // Sanal klavye tuş işleyici
-  const handleVirtualKey = (key: string) => {
-    const setter =
-      activeInput === 'phone'  ? setPhone :
-      activeInput === 'address' ? setAddress :
-      activeInput === 'last4'  ? setLastFourDigits : null;
-    if (!setter) return;
-
-    if (key === 'BACKSPACE') {
-      setter((prev) => prev.slice(0, -1));
-    } else if (key === 'ENTER') {
-      setActiveInput(null);
-    } else {
-      setter((prev) => {
-        if (activeInput === 'last4') {
-          const next = (prev + key).replace(/\D/g, '').slice(0, 4);
-          return next;
-        }
-        return prev + key;
-      });
+  // Ürün adına göre ekmek sayısını hesapla (quantity dahil)
+  const getBreadCountForItem = (item: CartItem): number => {
+    const lowerName = item.name.toLowerCase();
+    
+    // Hatay Maxi = 2 ekmek
+    if (lowerName.includes('maksi') || lowerName.includes('maxi')) {
+      return item.quantity * 2;
     }
+    
+    // Klasik Dönerler = 1 ekmek
+    if (item.category === 'Klasik Dönerler') {
+      return item.quantity * 1;
+    }
+    
+    // Hatay Usulü Dönerler (eko, normal) = 1 ekmek
+    if (
+      item.category === 'Hatay Usulü Dönerler' && 
+      (lowerName.includes('eko') || lowerName.includes('normal') || 
+       (!lowerName.includes('maksi') && !lowerName.includes('maxi')))
+    ) {
+      return item.quantity * 1;
+    }
+    
+    // Porsiyonlar = 1 ekmek
+    if (item.category === 'Porsiyonlar') {
+      return item.quantity * 1;
+    }
+    
+    // Menüler (Tavuk) = 1 ekmek
+    if (item.category === 'Menüler' && lowerName.includes('tavuk')) {
+      return item.quantity * 1;
+    }
+    
+    // Diğer ürünler = 0 ekmek (taklalar, içecekler, çorba vs.)
+    return 0;
+  };
+
+  // Kasada gösterilecek toplam ekmek sayısını hesapla (çift lavaş hesabıyla)
+  // NOT: customizedInstances sadece "Sepeti Onayla" sonrası doldurulur
+  // Kasa panelinde daima cart'dan hesapla!
+  const calculateBreadCount = (): number => {
+    let breadCount = 0;
+    
+    // Normal cart'tan ekmek sayısını hesapla
+    breadCount = cart.reduce((sum, item) => sum + getBreadCountForItem(item), 0);
+    
+    // Eğer CartCustomizationPanel'de çift lavaş seçilmişse, customizedInstances'den +1 ekle
+    if (customizedInstances && customizedInstances.length > 0) {
+      const ciftLavasCount = customizedInstances.reduce((sum, g) => {
+        if (g.hatayBread === 'çift lavaş' || g.klasikBread === 'çift lavaş') {
+          return sum + g.quantity;
+        }
+        return sum;
+      }, 0);
+      breadCount += ciftLavasCount;
+    }
+    
+    return breadCount;
   };
 
   const handleComplete = () => {
     setCart([]);
     setQuantities({});
+    setCustomizedInstances([]); // Başarılı sipariş sonrası temizle
     setShowSuccessMessage(true);
+    
+    // Kurye siparişi ise takip sayfasına yönlendir
+    if (orderType === 'delivery') {
+      setTimeout(() => {
+        navigate('/tracking/siparis-takip');
+      }, 1500); // Başarı mesajı gösteriminden sonra yönlendir
+    }
   };
 
   const exportToExcel = () => {
@@ -480,16 +455,20 @@ const OrderScreen: React.FC = () => {
   const filteredProducts = products.filter(
     (product) => {
       if (product.category !== selectedCategory) return false;
-      const n = product.name.toLowerCase();
-      // "et" kelimesi geçen tüm ürünleri gizle (et dürüm, et menü, et porsiyon vb.)
-      if (/\bet\b/.test(n)) return false;
       return true;
     }
   );
 
   return (
-    <Box sx={{ flexGrow: 1 }}>
-      <AppBar position="static" color="default" elevation={1}>
+    <Box
+      sx={{
+        flexGrow: 1,
+        minHeight: '100vh',
+        bgcolor: '#f6f8fc',
+        backgroundImage: 'radial-gradient(circle at 0% 0%, rgba(25,118,210,0.10), transparent 29%)',
+      }}
+    >
+      <AppBar position="static" color="default" elevation={0}>
         <Toolbar sx={{ minHeight: '64px' }}>
           <IconButton
             edge="start"
@@ -499,9 +478,19 @@ const OrderScreen: React.FC = () => {
           >
             <ArrowBackIcon />
           </IconButton>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1, fontSize: '1.1rem', color: orderType === 'delivery' ? 'primary.main' : 'error.main' }}>
-            USLU DÖNER – {orderType === 'dine-in' ? 'İçeride' : 'Kurye'}
-          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25, flexGrow: 1 }}>
+            <ThreeDIcon color={orderType === 'delivery' ? '#1976d2' : '#d32f2f'} size={38}>
+              {orderType === 'delivery' ? <DeliveryDiningIcon /> : <RestaurantIcon />}
+            </ThreeDIcon>
+            <Box>
+              <Typography variant="subtitle2" sx={{ color: 'text.secondary', lineHeight: 1.1 }}>
+                USLU DÖNER
+              </Typography>
+              <Typography variant="h6" component="div" sx={{ lineHeight: 1.25, color: orderType === 'delivery' ? 'primary.main' : 'error.main' }}>
+                {orderType === 'dine-in' ? 'İçeride Sipariş' : 'Dışarıya Sipariş'}
+              </Typography>
+            </Box>
+          </Box>
           <Box sx={{ display: 'flex', gap: 1 }}>
             <Button
               startIcon={<BarChartIcon />}
@@ -548,52 +537,76 @@ const OrderScreen: React.FC = () => {
         </Toolbar>
       </AppBar>
 
-      <Box sx={{ p: 3 }}>
+      <Box sx={{ p: { xs: 1.5, md: 3 }, maxWidth: 1680, mx: 'auto' }}>
         <Grid container spacing={2}>
           {/* Left side - Categories and Products */}
           <Grid item xs={12} md={9}>
-            <Box sx={{ mb: 2, display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+            <Paper sx={{ mb: 2, p: 1.25, display: 'flex', flexWrap: 'wrap', gap: 1, bgcolor: 'rgba(255,255,255,0.76)' }}>
               {categories.map((category) => (
                 <Button
                   key={category}
                   variant={selectedCategory === category ? 'contained' : 'outlined'}
                   onClick={() => setSelectedCategory(category)}
-                  sx={{ 
+                  sx={{
                     minWidth: '120px',
-                    height: '40px',
-                    fontSize: '0.9rem'
+                    height: '44px',
+                    fontSize: '0.9rem',
+                    borderRadius: '12px',
                   }}
                   color={orderType === 'delivery' ? 'primary' : 'error'}
                 >
                   {category}
                 </Button>
               ))}
-            </Box>
+            </Paper>
 
-            <Grid container spacing={1}>
-              {filteredProducts.map((product) => (
+            <Grid container spacing={1.5}>
+              {filteredProducts.map((product) => {
+                const visual = getProductVisual(product.category);
+                const isReadyToAdd = Boolean(quantities[product.id]);
+                const actionColor = orderType === 'delivery' ? '#1976d2' : '#d32f2f';
+
+                return (
                 <Grid item xs={12} sm={6} md={4} key={product.id}>
-                  <Card sx={{ height: '100%' }}>
-                    <CardContent>
-                      <Typography variant="h6" sx={{ fontSize: '1rem' }}>{product.name}</Typography>
-                      <Typography color="textSecondary" sx={{ fontSize: '1.1rem', fontWeight: 'bold' }}>
-                        {product.price}₺
-                      </Typography>
+                  <Card sx={{ height: '100%', border: '1px solid rgba(15,23,42,0.06)', overflow: 'visible', position: 'relative' }}>
+                    <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
+                      <Box sx={{ display: 'flex', gap: 1.25, alignItems: 'flex-start', mb: 1.25 }}>
+                        <ThreeDIcon color={visual.color} size={46}>
+                          {visual.icon}
+                        </ThreeDIcon>
+                        <Box sx={{ minWidth: 0, flex: 1 }}>
+                          <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 700, display: 'block', mb: 0.25 }}>
+                            {product.category}
+                          </Typography>
+                          <Typography variant="h6" sx={{ fontSize: '1rem', fontWeight: 800, lineHeight: 1.25 }}>
+                            {product.name}
+                          </Typography>
+                        </Box>
+                      </Box>
+                      <Box sx={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', mb: 1 }}>
+                        <Typography color={orderType === 'delivery' ? 'primary.main' : 'error.main'} sx={{ fontSize: '1.3rem', fontWeight: 900 }}>
+                          {product.price}₺
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          Taze hazırlanır
+                        </Typography>
+                      </Box>
                       {product.description && (
                         <Typography variant="body2" sx={{ fontSize: '0.8rem' }}>{product.description}</Typography>
                       )}
-                      <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', mt: 1.5, p: 0.6, bgcolor: '#f8fafc', borderRadius: 2 }}>
                         <IconButton
                           onClick={() => handleQuantityChange(product.id, -1)}
                           disabled={!quantities[product.id]}
                           size="small"
+                          sx={{ bgcolor: '#fff', border: '1px solid #e4e7ec' }}
                         >
                           <RemoveIcon />
                         </IconButton>
                         <TextField
                           value={quantities[product.id] || 0}
                           size="small"
-                          sx={{ width: 50, mx: 1 }}
+                          sx={{ width: 52, mx: 0.75, '& .MuiOutlinedInput-notchedOutline': { border: 'none' } }}
                           inputProps={{ 
                             readOnly: true,
                             style: { textAlign: 'center', fontSize: '1rem' }
@@ -602,6 +615,7 @@ const OrderScreen: React.FC = () => {
                         <IconButton
                           onClick={() => handleQuantityChange(product.id, 1)}
                           size="small"
+                          sx={{ bgcolor: '#fff', border: '1px solid #e4e7ec' }}
                         >
                           <AddIcon />
                         </IconButton>
@@ -609,25 +623,53 @@ const OrderScreen: React.FC = () => {
                           variant="contained"
                           onClick={() => addToCart(product)}
                           disabled={!quantities[product.id]}
-                          sx={{ ml: 1, fontSize: '0.8rem' }}
-                          color={orderType === 'delivery' ? 'primary' : 'error'}
+                          sx={{
+                            ml: 0.5,
+                            minWidth: 76,
+                            fontSize: '0.8rem',
+                            fontWeight: 800,
+                            color: '#fff',
+                            background: isReadyToAdd
+                              ? `linear-gradient(145deg, ${orderType === 'delivery' ? '#42a5f5' : '#ef5350'}, ${actionColor})`
+                              : '#b0b8c4',
+                            boxShadow: isReadyToAdd ? `0 3px 0 ${orderType === 'delivery' ? '#0d47a1' : '#9f1d1d'}` : 'none',
+                            '&:hover': {
+                              background: isReadyToAdd ? actionColor : '#b0b8c4',
+                              transform: isReadyToAdd ? 'translateY(-1px)' : 'none',
+                            },
+                            '&:active': {
+                              transform: isReadyToAdd ? 'translateY(2px)' : 'none',
+                              boxShadow: 'none',
+                            },
+                            '&.Mui-disabled': {
+                              background: '#b0b8c4',
+                              color: '#fff',
+                            },
+                            transition: 'all 180ms ease-in-out',
+                          }}
                         >
-                          Ekle
+                          ➕ Ekle
                         </Button>
                       </Box>
                     </CardContent>
                   </Card>
                 </Grid>
-              ))}
+                );
+              })}
             </Grid>
           </Grid>
 
           {/* Right side - Cart */}
           <Grid item xs={12} md={3}>
-            <Paper sx={{ p: 2, height: 'calc(100vh - 120px)', position: 'sticky', top: '20px', overflow: 'auto' }}>
-              <Typography variant="h6" gutterBottom sx={{ fontSize: '1.1rem', fontWeight: 600, color: orderType === 'delivery' ? 'primary.main' : 'error.main' }}>
-                🛒 Sepet
-              </Typography>
+            <Paper sx={{ p: 2.25, height: 'calc(100vh - 104px)', position: 'sticky', top: '16px', overflow: 'auto', borderTop: `4px solid ${orderType === 'delivery' ? '#1976d2' : '#d32f2f'}` }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                <ThreeDIcon color={orderType === 'delivery' ? '#1976d2' : '#d32f2f'} size={36}>
+                  <ShoppingCartIcon />
+                </ThreeDIcon>
+                <Typography variant="h6" sx={{ fontSize: '1.1rem', fontWeight: 800, color: orderType === 'delivery' ? 'primary.main' : 'error.main' }}>
+                  Sipariş Sepeti
+                </Typography>
+              </Box>
               <Divider sx={{ mb: 2 }} />
 
               {/* Kurye bilgileri — sepet boş olsa da her zaman görünür */}
@@ -644,7 +686,7 @@ const OrderScreen: React.FC = () => {
                     onFocus={() => setActiveInput('last4')}
                     onClick={() => setActiveInput('last4')}
                     sx={{ mb: 1.5, '& .MuiOutlinedInput-root': activeInput === 'last4' ? { '& fieldset': { borderColor: '#1a237e', borderWidth: 2 } } : {} }}
-                    inputProps={{ maxLength: 4, inputMode: 'none', readOnly: false }}
+                    inputProps={{ maxLength: 4 }}
                     helperText="Kayıtlı müşteri için son 4 haneyi girin"
                   />
                   <TextField
@@ -655,7 +697,6 @@ const OrderScreen: React.FC = () => {
                     onFocus={() => setActiveInput('phone')}
                     onClick={() => setActiveInput('phone')}
                     sx={{ mb: 1.5, '& .MuiOutlinedInput-root': activeInput === 'phone' ? { '& fieldset': { borderColor: '#1a237e', borderWidth: 2 } } : {} }}
-                    inputProps={{ inputMode: 'none' }}
                   />
                   <TextField
                     fullWidth
@@ -665,7 +706,6 @@ const OrderScreen: React.FC = () => {
                     onFocus={() => setActiveInput('address')}
                     onClick={() => setActiveInput('address')}
                     sx={{ mb: 1.5, '& .MuiOutlinedInput-root': activeInput === 'address' ? { '& fieldset': { borderColor: '#1a237e', borderWidth: 2 } } : {} }}
-                    inputProps={{ inputMode: 'none' }}
                   />
                   <FormControl component="fieldset" sx={{ mb: 1 }}>
                     <FormLabel component="legend">Ödeme Tipi</FormLabel>
@@ -730,6 +770,11 @@ const OrderScreen: React.FC = () => {
                   <Typography variant="h6" gutterBottom sx={{ fontSize: '1.1rem', fontWeight: 600, color: orderType === 'delivery' ? 'primary.main' : 'error.main' }}>
                     Toplam: {calculateTotal()}₺
                   </Typography>
+                  {calculateBreadCount() > 0 && (
+                    <Typography variant="body2" sx={{ fontSize: '0.9rem', fontWeight: 600, mb: 1.5, color: '#d97706' }}>
+                      🥖 Ekmek: {calculateBreadCount()} adet {customizedInstances.length > 0 && `(${customizedInstances.filter(g => g.hatayBread === 'çift lavaş' || g.klasikBread === 'çift lavaş').reduce((s,g)=>s+g.quantity,0)} çift lavaş)`}
+                    </Typography>
+                  )}
                   {orderType === 'delivery' && (
                     <Typography variant="body2" color="textSecondary" gutterBottom sx={{ fontSize: '0.8rem' }}>
                       * Kurye ücreti dahildir
@@ -760,6 +805,7 @@ const OrderScreen: React.FC = () => {
         orderType={orderType}
         receiptNumber={receiptNumber}
         total={calculateTotal()}
+        onGroupsChange={(groups) => setCustomizedInstances(groups)}
         onConfirm={(groups, payload) => {
           setCustomizedInstances(groups);
           setKitchenPayload(payload);
@@ -781,36 +827,6 @@ const OrderScreen: React.FC = () => {
         onComplete={handleComplete}
         customizedInstances={customizedInstances}
         kitchenPayload={kitchenPayload}
-      />
-
-      {/* Sanal klavye — sağ alt köşe ikonu + panel */}
-      <VirtualKeyboard onKey={handleVirtualKey} />
-
-      {/* Sipariş Asistanı */}
-      <VoiceOrderAssistant
-        cart={cart}
-        onAddToCart={(product, qty) => {
-          setCart((prev) => {
-            const existing = prev.find((i) => i.id === product.id);
-            if (existing) {
-              return prev.map((i) =>
-                i.id === product.id ? { ...i, quantity: i.quantity + qty } : i
-              );
-            }
-            return [...prev, { ...product, quantity: qty }];
-          });
-        }}
-        onRemoveFromCart={removeFromCart}
-        onClearCart={() => { setCart([]); setQuantities({}); }}
-        getTotal={calculateTotal}
-        orderType={orderType}
-        phone={phone}
-        address={address}
-        paymentType={paymentType}
-        onSetPhone={setPhone}
-        onSetAddress={setAddress}
-        onSetPayment={setPaymentType}
-        onOpenCustomization={() => setShowCustomizationPanel(true)}
       />
 
       <Snackbar
