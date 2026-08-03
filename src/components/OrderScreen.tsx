@@ -209,7 +209,7 @@ const products: Product[] = [
   {
     id: 30,
     name: '1 LT Ayaran',
-    price: 90,
+    price: 110,
     category: 'İçecekler & Atıştırmalık',
   },
   {
