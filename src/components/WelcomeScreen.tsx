@@ -228,7 +228,7 @@ const WelcomeScreen: React.FC = () => {
 
         {/* Yönetim ve silme işlemleri */}
         <Grid container spacing={2} sx={{ mb: 2 }}>
-          <Grid item xs={12} sm={orders.length > 0 ? 6 : 12}>
+          <Grid item xs={12} sm={6}>
             <Card
               elevation={0}
               sx={{
@@ -254,31 +254,30 @@ const WelcomeScreen: React.FC = () => {
             </Card>
           </Grid>
 
-          {orders.length > 0 && (
-            <Grid item xs={12} sm={6}>
-              <Card
-                elevation={0}
-                sx={{
-                  height: '100%',
-                  border: '1px solid rgba(211,47,47,0.22)',
-                  background: 'linear-gradient(135deg, #ffffff, #fff2f2)',
-                }}
-              >
-                <CardContent sx={{ p: '16px !important' }}>
-                  <Button
-                    fullWidth
-                    variant="outlined"
-                    startIcon={<DeleteIcon />}
-                    onClick={handleDeleteLastOrder}
-                    color="error"
-                    sx={{ py: 1.25, justifyContent: 'flex-start' }}
-                  >
-                    Son Siparişi Sil
-                  </Button>
-                </CardContent>
-              </Card>
-            </Grid>
-          )}
+          <Grid item xs={12} sm={6}>
+            <Card
+              elevation={0}
+              sx={{
+                height: '100%',
+                border: '1px solid rgba(211,47,47,0.22)',
+                background: 'linear-gradient(135deg, #ffffff, #fff2f2)',
+              }}
+            >
+              <CardContent sx={{ p: '16px !important' }}>
+                <Button
+                  fullWidth
+                  variant="outlined"
+                  startIcon={<DeleteIcon />}
+                  onClick={handleDeleteLastOrder}
+                  color="error"
+                  disabled={orders.length === 0}
+                  sx={{ py: 1.25, justifyContent: 'flex-start' }}
+                >
+                  Son Siparişi Sil
+                </Button>
+              </CardContent>
+            </Card>
+          </Grid>
         </Grid>
         <Box
           sx={{
