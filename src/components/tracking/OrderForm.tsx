@@ -39,6 +39,13 @@ const OrderForm: React.FC<OrderFormProps> = ({ panel }) => {
 
   const couriers = getActiveCouriers();
 
+  const updateTextField = (field: 'fiyat' | 'ekmekSayisi', value: string) => {
+    setFormState({ ...formState, [field]: value });
+    if (fieldErrors[field]) {
+      setFieldErrors({ ...fieldErrors, [field]: '' });
+    }
+  };
+
   const validate = (): Record<string, string> => {
     const errors: Record<string, string> = {};
     
@@ -149,12 +156,8 @@ const OrderForm: React.FC<OrderFormProps> = ({ panel }) => {
               label="Fiyat (₺)"
               fullWidth
               value={formState.fiyat}
-              onChange={(e) => {
-                setFormState({ ...formState, fiyat: e.target.value });
-                if (fieldErrors.fiyat) {
-                  setFieldErrors({ ...fieldErrors, fiyat: '' });
-                }
-              }}
+              onChange={(e) => updateTextField('fiyat', e.target.value)}
+              onInput={(e) => updateTextField('fiyat', (e.target as HTMLInputElement).value)}
               onFocus={() => setError(null)}
               inputProps={{ inputMode: 'decimal', pattern: '[0-9.,-]*' }}
               InputProps={{
@@ -184,12 +187,8 @@ const OrderForm: React.FC<OrderFormProps> = ({ panel }) => {
               label="Ekmek Sayısı"
               fullWidth
               value={formState.ekmekSayisi}
-              onChange={(e) => {
-                setFormState({ ...formState, ekmekSayisi: e.target.value });
-                if (fieldErrors.ekmekSayisi) {
-                  setFieldErrors({ ...fieldErrors, ekmekSayisi: '' });
-                }
-              }}
+              onChange={(e) => updateTextField('ekmekSayisi', e.target.value)}
+              onInput={(e) => updateTextField('ekmekSayisi', (e.target as HTMLInputElement).value)}
               onFocus={() => setError(null)}
               inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
               InputProps={{

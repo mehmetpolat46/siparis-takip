@@ -202,7 +202,8 @@ const OrderCompleteModal: React.FC<OrderCompleteModalProps> = ({
         const groupLines = itemGroups.map(g => {
           const pType    = g.productType;
           const menuType = g.menuDonerType;
-          const unitPriceWithFee = g.basePrice + (g.hatayBread === 'çift lavaş' || g.klasikBread === 'çift lavaş' ? 15 : 0) + feePerUnit;
+          const kolaEkFiyat = g.productType === 'menu' && g.menuDrink === 'kola' ? 20 : 0;
+          const unitPriceWithFee = g.basePrice + (g.hatayBread === 'çift lavaş' || g.klasikBread === 'çift lavaş' ? 15 : 0) + kolaEkFiyat + feePerUnit;
           const lineTotalWithFee = unitPriceWithFee * g.quantity;
           const isCiftLavas = g.hatayBread === 'çift lavaş' || g.klasikBread === 'çift lavaş';
 
@@ -215,9 +216,22 @@ const OrderCompleteModal: React.FC<OrderCompleteModalProps> = ({
             ? `<span class="menu-type-label">${menuType === 'hatay' ? '🌶 Hatay Usulü' : '🥙 Klasik'}</span> `
             : '';
 
-          // ÇİFT LAVAŞ yazısı — Sadece bir kez, başında
-          const ciftLavasLabel = isCiftLavas
-            ? '<span style="font-weight: 900; font-size: 16px; color: #000;">ÇİFT LAVAŞ</span><br/>'
+          // Klasik dönerde seçilen ekmek tercihini fişe açıkça yaz.
+          // Hatay ürünlerde mevcut çift lavaş etiketi korunur.
+          const klasikBread = (pType === 'klasik' || menuType === 'klasik')
+            ? g.klasikBread
+            : undefined;
+          const breadText = klasikBread
+            ? `EKMEK: ${klasikBread.toLocaleUpperCase('tr-TR')}`
+            : isCiftLavas
+              ? 'ÇİFT LAVAŞ'
+              : '';
+          const drinkText = g.productType === 'menu' && g.menuDrink === 'kola'
+            ? 'İÇECEK: KOLA'
+            : '';
+          const breadAndDrinkLabel = [breadText, drinkText].filter(Boolean).join(' · ');
+          const preferenceLabel = breadAndDrinkLabel
+            ? `<span style="font-weight: 900; font-size: 16px; color: #000;">${breadAndDrinkLabel}</span><br/>`
             : '';
 
           // Malzeme parantezi: (pat - tur - tvk - sos - ✕may)
@@ -232,7 +246,7 @@ const OrderCompleteModal: React.FC<OrderCompleteModalProps> = ({
           }
 
           const ingContent = ingParenthesis ? ingParenthesis.replace(/^\s*\(/, '').replace(/\)\s*$/, '') : '';
-          const subLine = ciftLavasLabel + menuTypeLabel + ingContent;
+          const subLine = preferenceLabel + menuTypeLabel + ingContent;
           return `<div class="item kitchen-item"><span class="item-name">${g.quantity}x ${itemName}</span><span class="dots"></span><span class="item-details">${lineTotalWithFee} TL</span></div>${subLine ? `<div class="ing-sub-line">${subLine}</div>` : ''}`;
         }).join('');
 

@@ -105,7 +105,9 @@ const VirtualKeyboard: React.FC = () => {
         'value'
       )?.set;
       valueSetter?.call(target, nextValue);
+      target.focus({ preventScroll: true });
       target.dispatchEvent(new Event('input', { bubbles: true }));
+      target.dispatchEvent(new Event('change', { bubbles: true }));
       return true;
     }
 

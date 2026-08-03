@@ -70,6 +70,7 @@ export interface CartGroup {
   klasikBread?: 'somun' | 'lavaş' | 'çift lavaş';
   klasikIngredients?: Ingredient[];
   menuDonerType?: 'hatay' | 'klasik';
+  menuDrink?: 'kola';
   takoIngredients?: Ingredient[];
 }
 
@@ -88,6 +89,7 @@ export interface KitchenPrintItem {
   totalPrice: number;  // unitPrice * quantity
   productType: ProductType;
   bread?: string;
+  drink?: 'kola';
   ingredients: KitchenIngredient[];
   isCiftLavas?: boolean;
 }

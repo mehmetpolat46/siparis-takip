@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useParams, Navigate } from 'react-router-dom';
 import { Typography, Box } from '@mui/material';
 import StorefrontIcon from '@mui/icons-material/Storefront';
@@ -14,7 +14,19 @@ const isValidPanel = (id: string | undefined): id is Panel =>
 
 const PlatformPanelPage: React.FC = () => {
   const { panelId } = useParams<{ panelId: string }>();
-  const { getOrdersByPanel, updateOrder, deleteOrder, selectedDate } = useTracking();
+  const {
+    getOrdersByPanel,
+    updateOrder,
+    deleteOrder,
+    selectedDate,
+    resetFormState,
+  } = useTracking();
+
+  useEffect(() => {
+    if (isValidPanel(panelId)) {
+      resetFormState();
+    }
+  }, [panelId, resetFormState]);
 
   if (!isValidPanel(panelId)) {
     return <Navigate to="/tracking/panel/getir" replace />;

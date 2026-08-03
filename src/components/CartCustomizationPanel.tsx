@@ -66,6 +66,7 @@ const KLASIK_BREAD_OPTIONS = ['somun', 'lavaş', 'çift lavaş'] as const;
 
 /** Çift Lavaş ek ücreti */
 const CIFT_LAVAS_FIYAT = 15;
+const KOLA_FIYAT = 20;
 
 // ─── Yardımcı fonksiyonlar ────────────────────────────────────────────────────
 
@@ -94,6 +95,9 @@ const ciftLavasEkFiyat = (g: CartGroup): number => {
   if (g.hatayBread === 'çift lavaş' || g.klasikBread === 'çift lavaş') return CIFT_LAVAS_FIYAT;
   return 0;
 };
+
+const kolaEkFiyat = (g: CartGroup): number =>
+  g.productType === 'menu' && g.menuDrink === 'kola' ? KOLA_FIYAT : 0;
 
 const freshHatayGroup = (item: CartItem, idx: number, qty: number): CartGroup => ({
   groupId: `${item.id}_g${idx}_${Date.now()}`,
@@ -199,7 +203,7 @@ export const buildKitchenPayload = (
         .map((ig) => ({ name: ig.name, abbr: ig.abbr, active: ig.active }));
     }
 
-    const unitPrice = g.basePrice + ekFiyat + deliveryFeePerUnit(g);
+    const unitPrice = g.basePrice + ekFiyat + kolaEkFiyat(g) + deliveryFeePerUnit(g);
     return {
       groupId: g.groupId,
       name: g.name,
@@ -208,6 +212,7 @@ export const buildKitchenPayload = (
       totalPrice: unitPrice * g.quantity,
       productType: g.productType,
       bread,
+      drink: g.menuDrink,
       ingredients,
       isCiftLavas,
     };
@@ -475,6 +480,49 @@ const MenuEditor: React.FC<{ group: CartGroup; onChange: (g: CartGroup) => void;
           </Box>
         ))}
       </Box>
+      <Typography variant="caption" sx={{ fontWeight: 800, color: '#1565c0', textTransform: 'uppercase', letterSpacing: 1 }}>
+        🥤 İçecek Tercihi
+      </Typography>
+      <Box sx={{ display: 'flex', gap: 1.5, mt: 1, mb: 1.5, flexWrap: 'wrap' }}>
+        {[
+          { value: undefined, label: 'Normal', icon: '✓' },
+          { value: 'kola' as const, label: `Kola +${KOLA_FIYAT}₺`, icon: '🥤' },
+        ].map((drink) => {
+          const isSelected = group.menuDrink === drink.value;
+          return (
+            <Box
+              key={drink.label}
+              component="div"
+              onPointerDown={(e) => {
+                e.preventDefault();
+                onChange({ ...group, menuDrink: drink.value });
+              }}
+              sx={{
+                minWidth: 132,
+                minHeight: 56,
+                px: 2,
+                borderRadius: 2.5,
+                border: `1.5px solid ${isSelected ? '#1565c0' : '#1565c066'}`,
+                bgcolor: isSelected ? '#1565c0' : '#fff',
+                color: isSelected ? '#fff' : '#1565c0',
+                fontWeight: 800,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 0.75,
+                cursor: 'pointer',
+                userSelect: 'none',
+                WebkitTapHighlightColor: 'transparent',
+                boxShadow: isSelected ? '0 3px 0 #0d47a1, 0 7px 14px rgba(21,101,192,0.18)' : '0 2px 6px rgba(15,23,42,0.06)',
+                '&:active': { transform: 'translateY(2px)', boxShadow: isSelected ? '0 1px 0 #0d47a1' : 'none' },
+              }}
+            >
+              <Box component="span" sx={{ fontSize: '1.15rem' }}>{drink.icon}</Box>
+              {drink.label}
+            </Box>
+          );
+        })}
+      </Box>
       {group.menuDonerType === 'hatay' && <HatayEditor group={group} onChange={onChange} />}
       {group.menuDonerType === 'klasik' && <KlasikEditor group={group} onChange={onChange} />}
     </Box>
@@ -502,7 +550,7 @@ const GroupEditor: React.FC<GroupEditorProps> = ({
       group.productType === 'menu' ||
       group.productType === 'tako');
 
-  const unitPrice = group.basePrice + ciftLavasEkFiyat(group);
+  const unitPrice = group.basePrice + ciftLavasEkFiyat(group) + kolaEkFiyat(group);
   const visual = getCustomizationVisual(cartItem.category);
 
   return (
@@ -535,7 +583,7 @@ const GroupEditor: React.FC<GroupEditorProps> = ({
             {group.name}
           </Typography>
           <Typography variant="caption" color="text.secondary">
-            {unitPrice}₺/adet{ciftLavasEkFiyat(group) > 0 ? ' (+15₺ Çift Lavaş)' : ''}
+            {unitPrice}₺/adet{ciftLavasEkFiyat(group) > 0 ? ' (+15₺ Çift Lavaş)' : ''}{kolaEkFiyat(group) > 0 ? ` (+${KOLA_FIYAT}₺ Kola)` : ''}
           </Typography>
         </Box>
       </Box>
@@ -676,7 +724,7 @@ const GroupList: React.FC<GroupListProps> = ({ cart, groups, activeGroupId, onSe
             {itemGroups.map((g) => {
               const isActive = g.groupId === activeGroupId;
               const summary = ingredientSummary(g);
-              const unitPrice = g.basePrice;
+              const unitPrice = g.basePrice + ciftLavasEkFiyat(g) + kolaEkFiyat(g);
               const needsAttention = g.productType === 'menu' && !g.menuDonerType;
               return (
                 <Box
@@ -705,6 +753,7 @@ const GroupList: React.FC<GroupListProps> = ({ cart, groups, activeGroupId, onSe
                       {g.productType === 'hatay' && g.hatayBread ? ` (${g.hatayBread === 'çift lavaş' ? 'Çift Lavaş' : 'Lavaş'})` : ''}
                       {(g.productType === 'klasik' || g.menuDonerType === 'klasik') && g.klasikBread ? ` (${g.klasikBread === 'çift lavaş' ? 'Çift Lavaş' : (g.klasikBread.charAt(0).toUpperCase() + g.klasikBread.slice(1))})` : ''}
                       {g.menuDonerType ? ` · ${g.menuDonerType === 'hatay' ? 'Hatay' : 'Klasik'}` : ''}
+                      {g.menuDrink === 'kola' ? ' · Kola' : ''}
                     </Typography>
                     {summary && (
                       <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
@@ -875,6 +924,9 @@ const CartCustomizationPanel: React.FC<CartCustomizationPanelProps> = ({
 
   const activeGroup = groups.find((g) => g.groupId === activeGroupId) ?? null;
   const activeCartItem = activeGroup ? cart.find((c) => c.id === activeGroup.cartItemId) ?? null : null;
+  const previewTotal = groups.length > 0
+    ? buildKitchenPayload(groups, receiptNumber, orderType, total).total
+    : total;
 
   return (
     <Dialog
@@ -917,7 +969,7 @@ const CartCustomizationPanel: React.FC<CartCustomizationPanelProps> = ({
         )}
         <Box sx={{ textAlign: 'right' }}>
           <Typography variant="caption" sx={{ color: '#90caf9', display: 'block' }}>Genel Toplam</Typography>
-          <Typography sx={{ fontWeight: 900, fontSize: '1.3rem' }}>{total}₺</Typography>
+          <Typography sx={{ fontWeight: 900, fontSize: '1.3rem' }}>{previewTotal}₺</Typography>
           {calculateBreadCount() > 0 && (
             <Typography variant="caption" sx={{ color: '#fdd835', display: 'block', fontWeight: 700 }}>
               🥖 Ekmek: {calculateBreadCount()} (groups: {groups.length}, ciftLavas: {groups.filter(g => g.hatayBread === 'çift lavaş' || g.klasikBread === 'çift lavaş').length})
