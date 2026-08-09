@@ -8,6 +8,7 @@
  */
 
 import React, { useState, useCallback, useEffect, useRef } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Box, Slide, Typography, Fab } from '@mui/material';
 import KeyboardIcon from '@mui/icons-material/Keyboard';
 import KeyboardHideIcon from '@mui/icons-material/KeyboardHide';
@@ -37,6 +38,7 @@ const VirtualKeyboard: React.FC = () => {
   const [shifted, setShifted] = useState(false);
   const [caps, setCaps] = useState(false);
   const activeElementRef = useRef<HTMLInputElement | HTMLTextAreaElement | null>(null);
+  const location = useLocation();
 
   const rows = (shifted || caps) ? ROWS_UPPER : ROWS_LOWER;
 
@@ -44,8 +46,10 @@ const VirtualKeyboard: React.FC = () => {
     const rememberFocusedInput = (event: FocusEvent) => {
       const target = event.target;
       if (
-        target instanceof HTMLInputElement ||
-        target instanceof HTMLTextAreaElement
+        (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) &&
+        !target.readOnly &&
+        !target.disabled &&
+        target.type !== 'hidden'
       ) {
         activeElementRef.current = target;
       }
@@ -57,23 +61,30 @@ const VirtualKeyboard: React.FC = () => {
     };
   }, []);
 
+  // Sayfa/panel değiştiğinde (ör. Getir → Yemek Sepeti) önceki sayfadan kalan,
+  // artık DOM'da olmayan bir input referansına yazmaya çalışmayı engeller.
+  // Kullanıcının yeni sayfada hedef kutuya tekrar dokunması gerekir.
+  useEffect(() => {
+    activeElementRef.current = null;
+  }, [location.pathname]);
+
   const insertText = useCallback((value: string) => {
     const target = activeElementRef.current;
 
-    if (!target) {
-      return false;
-    }
-
-    // Sadece MUI giriş alanlarını ele alır; fiziksel klavye olaylarına müdahale etmez.
-    const isMuiInput =
-      (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) &&
-      target.classList.contains('MuiInputBase-input');
-    
-    if (!isMuiInput) {
+    // Referans hâlâ tutuluyor olsa bile artık sayfada değilse (rota değişmiş,
+    // bileşen kaldırılmış vb.) sessizce hiçbir şey yazmamak yerine iptal et.
+    if (!target || !target.isConnected || target.readOnly || target.disabled) {
+      activeElementRef.current = null;
       return false;
     }
 
     if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) {
+      // Kutu görsel olarak odağını kaybetmiş olsa bile (ör. dokunmatik ekranda
+      // klavye tuşuna basarken tarayıcının varsayılan davranışı odağı kaydırmışsa)
+      // yazmadan önce odağı son bilinen kutuya geri getir.
+      if (document.activeElement !== target) {
+        target.focus({ preventScroll: true });
+      }
       const start = target.selectionStart ?? target.value.length;
       const end = target.selectionEnd ?? target.value.length;
 
@@ -121,6 +132,24 @@ const VirtualKeyboard: React.FC = () => {
     if (shifted && !caps) setShifted(false);
   }, [caps, insertText, shifted]);
 
+  // Bazı eski/gömülü dokunmatik tarayıcılar (POS kiosk tarayıcıları) Pointer
+  // Events'i tam desteklemeyebilir. Bu yüzden tuşlara hem onPointerDown hem de
+  // onMouseDown bağlanır; onPointerDown zaten işlediyse onMouseDown'ın aynı
+  // basışı tekrar işlemesi kısa bir zaman penceresiyle engellenir.
+  const suppressMouseUntilRef = useRef(0);
+  const bindPress = useCallback((action: () => void) => ({
+    onPointerDown: (e: React.PointerEvent) => {
+      e.preventDefault();
+      suppressMouseUntilRef.current = Date.now() + 500;
+      action();
+    },
+    onMouseDown: (e: React.MouseEvent) => {
+      e.preventDefault();
+      if (Date.now() < suppressMouseUntilRef.current) return;
+      action();
+    },
+  }), []);
+
   const KEY_SX = {
     minWidth: 44,
     minHeight: { xs: 48, sm: 56 },
@@ -159,7 +188,7 @@ const VirtualKeyboard: React.FC = () => {
         size="medium"
         aria-label={open ? 'Sanal klavyeyi kapat' : 'Sanal klavyeyi aç'}
         title={open ? 'Kapat' : 'Sanal Türkçe Klavye'}
-        onPointerDown={(e) => { e.preventDefault(); setOpen((v) => !v); }}
+        {...bindPress(() => setOpen((v) => !v))}
         sx={{
           position: 'fixed',
           bottom: 24,
@@ -211,7 +240,7 @@ const VirtualKeyboard: React.FC = () => {
               {ri === 3 && (
                 <Box
                   component="div"
-                  onPointerDown={(e) => { e.preventDefault(); if (caps) { setCaps(false); setShifted(false); } else { setShifted((v) => !v); } }}
+                  {...bindPress(() => { if (caps) { setCaps(false); setShifted(false); } else { setShifted((v) => !v); } })}
                   sx={{
                     ...KEY_SX,
                     minWidth: 66,
@@ -230,7 +259,7 @@ const VirtualKeyboard: React.FC = () => {
                 <Box
                   key={key}
                   component="div"
-                  onPointerDown={(e) => { e.preventDefault(); handleKey(key); }}
+                  {...bindPress(() => handleKey(key))}
                   sx={KEY_SX}
                 >
                   {key}
@@ -241,7 +270,7 @@ const VirtualKeyboard: React.FC = () => {
               {ri === 3 && (
                 <Box
                   component="div"
-                  onPointerDown={(e) => { e.preventDefault(); handleKey('BACKSPACE'); }}
+                  {...bindPress(() => handleKey('BACKSPACE'))}
                   sx={{
                     ...KEY_SX,
                     minWidth: 66,
@@ -261,7 +290,7 @@ const VirtualKeyboard: React.FC = () => {
           <Box sx={{ display: 'flex', justifyContent: 'center', mt: 0.3 }}>
             <Box
               component="div"
-              onPointerDown={(e) => { e.preventDefault(); setCaps((v) => !v); setShifted(false); }}
+              {...bindPress(() => { setCaps((v) => !v); setShifted(false); })}
               sx={{
                 ...KEY_SX,
                 minWidth: 80,
@@ -276,7 +305,7 @@ const VirtualKeyboard: React.FC = () => {
 
             <Box
               component="div"
-              onPointerDown={(e) => { e.preventDefault(); handleKey(' '); }}
+              {...bindPress(() => handleKey(' '))}
               sx={{ ...KEY_SX, flex: 1, maxWidth: 500, mx: 0.5 }}
             >
               <Typography sx={{ fontSize: '0.85rem', color: '#666' }}>BOŞLUK</Typography>
@@ -284,7 +313,7 @@ const VirtualKeyboard: React.FC = () => {
 
             <Box
               component="div"
-              onPointerDown={(e) => { e.preventDefault(); handleKey('ENTER'); }}
+              {...bindPress(() => handleKey('ENTER'))}
               sx={{
                 ...KEY_SX,
                 minWidth: 80,
