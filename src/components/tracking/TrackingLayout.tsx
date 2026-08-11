@@ -155,7 +155,7 @@ const TrackingLayout: React.FC = () => {
         elevation={1}
         sx={{ zIndex: (t) => t.zIndex.drawer + 1 }}
       >
-        <Toolbar>
+        <Toolbar sx={{ gap: 1, flexWrap: { xs: 'wrap', sm: 'nowrap' }, py: { xs: 1, sm: 0.5 } }}>
           {isMobile && (
             <IconButton edge="start" onClick={() => setMobileOpen(!mobileOpen)} sx={{ mr: 1 }}>
               <MenuIcon />
@@ -164,7 +164,7 @@ const TrackingLayout: React.FC = () => {
           <IconButton edge="start" onClick={() => navigate('/')} sx={{ mr: 1 }}>
             <ArrowBackIcon />
           </IconButton>
-          <Typography variant="h6" sx={{ flexGrow: 1, fontWeight: 600 }}>
+          <Typography variant="h6" noWrap sx={{ flexGrow: 1, fontWeight: 600, fontSize: { xs: '1rem', sm: '1.25rem' }, minWidth: 0 }}>
             Sipariş & Kurye Takip
           </Typography>
           <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={trLocale}>
@@ -173,7 +173,7 @@ const TrackingLayout: React.FC = () => {
               value={parseISO(selectedDate)}
               onChange={handleDateChange}
               slotProps={{
-                textField: { size: 'small', sx: { width: { xs: 140, sm: 180 } } },
+                textField: { size: 'small', sx: { width: { xs: 130, sm: 180 } } },
               }}
             />
           </LocalizationProvider>

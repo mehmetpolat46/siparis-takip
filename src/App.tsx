@@ -234,6 +234,40 @@ const theme = createTheme({
         },
       },
     },
+    MuiCssBaseline: {
+      styleOverrides: {
+        'html, body, #root': {
+          height: '100%',
+          width: '100%',
+        },
+        html: {
+          WebkitTextSizeAdjust: '100%',
+          textSizeAdjust: '100%',
+        },
+        body: {
+          overflowX: 'hidden',
+          WebkitTapHighlightColor: 'transparent',
+          overscrollBehaviorY: 'contain',
+        },
+        '*': {
+          boxSizing: 'border-box',
+        },
+        // Dokunmatik yazarkasa ekranlarında yanlışlıkla metin seçimini engelle
+        'button, [role="button"]': {
+          WebkitUserSelect: 'none',
+          userSelect: 'none',
+        },
+      },
+    },
+  },
+  breakpoints: {
+    values: {
+      xs: 0,
+      sm: 600,
+      md: 900,
+      lg: 1200,
+      xl: 1536,
+    },
   },
 });
 

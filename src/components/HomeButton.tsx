@@ -21,8 +21,8 @@ const HomeButton: React.FC = () => {
         onClick={() => navigate('/')}
         sx={{
           position: 'fixed',
-          bottom: 24,
-          left: 24,
+          bottom: { xs: 16, sm: 24 },
+          left: { xs: 16, sm: 24 },
           zIndex: (t) => t.zIndex.modal + 2,
           background: `linear-gradient(145deg, ${theme.palette.primary.light}, ${theme.palette.primary.main})`,
           border: '1px solid rgba(255,255,255,0.55)',

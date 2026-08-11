@@ -462,14 +462,25 @@ const OrderScreen: React.FC = () => {
   return (
     <Box
       sx={{
-        flexGrow: 1,
+        display: 'flex',
+        flexDirection: 'column',
+        height: { xs: 'auto', md: '100vh' },
         minHeight: '100vh',
+        maxHeight: { md: '100vh' },
         bgcolor: '#f6f8fc',
         backgroundImage: 'radial-gradient(circle at 0% 0%, rgba(25,118,210,0.10), transparent 29%)',
+        overflow: { md: 'hidden' },
       }}
     >
-      <AppBar position="static" color="default" elevation={0}>
-        <Toolbar sx={{ minHeight: '64px' }}>
+      <AppBar position="static" color="default" elevation={0} sx={{ flexShrink: 0 }}>
+        <Toolbar
+          sx={{
+            minHeight: { xs: 'auto', sm: '64px' },
+            flexWrap: 'wrap',
+            gap: 1,
+            py: { xs: 1, sm: 0.5 },
+          }}
+        >
           <IconButton
             edge="start"
             color="inherit"
@@ -478,55 +489,63 @@ const OrderScreen: React.FC = () => {
           >
             <ArrowBackIcon />
           </IconButton>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25, flexGrow: 1 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25, flexGrow: 1, minWidth: 0 }}>
             <ThreeDIcon color={orderType === 'delivery' ? '#1976d2' : '#d32f2f'} size={38}>
               {orderType === 'delivery' ? <DeliveryDiningIcon /> : <RestaurantIcon />}
             </ThreeDIcon>
-            <Box>
-              <Typography variant="subtitle2" sx={{ color: 'text.secondary', lineHeight: 1.1 }}>
+            <Box sx={{ minWidth: 0 }}>
+              <Typography
+                variant="subtitle2"
+                sx={{ color: 'text.secondary', lineHeight: 1.1, display: { xs: 'none', sm: 'block' } }}
+              >
                 USLU DÖNER
               </Typography>
-              <Typography variant="h6" component="div" sx={{ lineHeight: 1.25, color: orderType === 'delivery' ? 'primary.main' : 'error.main' }}>
+              <Typography
+                variant="h6"
+                component="div"
+                noWrap
+                sx={{ lineHeight: 1.25, color: orderType === 'delivery' ? 'primary.main' : 'error.main', fontSize: { xs: '1rem', sm: '1.25rem' } }}
+              >
                 {orderType === 'dine-in' ? 'İçeride Sipariş' : 'Dışarıya Sipariş'}
               </Typography>
             </Box>
           </Box>
-          <Box sx={{ display: 'flex', gap: 1 }}>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, justifyContent: 'flex-end' }}>
             <Button
               startIcon={<BarChartIcon />}
               onClick={() => navigate('/admin')}
               size="small"
-              sx={{ fontSize: '0.8rem' }}
+              sx={{ fontSize: '0.8rem', minWidth: { xs: 0, sm: 'auto' }, px: { xs: 1, sm: 1.5 } }}
               color={orderType === 'delivery' ? 'primary' : 'error'}
             >
-              Raporlar
+              <Box component="span" sx={{ display: { xs: 'none', md: 'inline' } }}>Raporlar</Box>
             </Button>
             <Button
               startIcon={<SettingsIcon />}
               onClick={() => navigate('/admin')}
               size="small"
-              sx={{ fontSize: '0.8rem' }}
+              sx={{ fontSize: '0.8rem', minWidth: { xs: 0, sm: 'auto' }, px: { xs: 1, sm: 1.5 } }}
               color={orderType === 'delivery' ? 'primary' : 'error'}
             >
-              Ayarlar
+              <Box component="span" sx={{ display: { xs: 'none', md: 'inline' } }}>Ayarlar</Box>
             </Button>
             <Button
               startIcon={<HomeIcon />}
               onClick={() => navigate('/')}
               size="small"
-              sx={{ fontSize: '0.8rem' }}
+              sx={{ fontSize: '0.8rem', minWidth: { xs: 0, sm: 'auto' }, px: { xs: 1, sm: 1.5 } }}
               color={orderType === 'delivery' ? 'primary' : 'error'}
             >
-              Ana Sayfa
+              <Box component="span" sx={{ display: { xs: 'none', md: 'inline' } }}>Ana Sayfa</Box>
             </Button>
             <Button
               startIcon={<PrintIcon />}
               onClick={exportToExcel}
               size="small"
-              sx={{ fontSize: '0.8rem' }}
+              sx={{ fontSize: '0.8rem', minWidth: { xs: 0, sm: 'auto' }, px: { xs: 1, sm: 1.5 } }}
               color={orderType === 'delivery' ? 'primary' : 'error'}
             >
-              Excel
+              <Box component="span" sx={{ display: { xs: 'none', md: 'inline' } }}>Excel</Box>
             </Button>
             <IconButton color="inherit" size="small">
               <Badge badgeContent={cart.length} color="primary">
@@ -537,20 +556,42 @@ const OrderScreen: React.FC = () => {
         </Toolbar>
       </AppBar>
 
-      <Box sx={{ p: { xs: 1.5, md: 3 }, maxWidth: 1680, mx: 'auto' }}>
-        <Grid container spacing={2}>
+      <Box
+        sx={{
+          flex: 1,
+          minHeight: 0,
+          overflow: { xs: 'visible', md: 'hidden' },
+          p: { xs: 1.5, md: 3 },
+          width: '100%',
+          maxWidth: 1920,
+          mx: 'auto',
+          display: 'flex',
+        }}
+      >
+        <Grid container spacing={2} sx={{ flex: 1, minHeight: 0, height: { md: '100%' } }}>
           {/* Left side - Categories and Products */}
-          <Grid item xs={12} md={9}>
-            <Paper sx={{ mb: 2, p: 1.25, display: 'flex', flexWrap: 'wrap', gap: 1, bgcolor: 'rgba(255,255,255,0.76)' }}>
+          <Grid
+            item
+            xs={12}
+            md={8}
+            lg={9}
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              height: { md: '100%' },
+              minHeight: 0,
+            }}
+          >
+            <Paper sx={{ mb: 2, p: 1.25, display: 'flex', flexWrap: 'wrap', gap: 1, bgcolor: 'rgba(255,255,255,0.76)', flexShrink: 0 }}>
               {categories.map((category) => (
                 <Button
                   key={category}
                   variant={selectedCategory === category ? 'contained' : 'outlined'}
                   onClick={() => setSelectedCategory(category)}
                   sx={{
-                    minWidth: '120px',
+                    minWidth: { xs: '100px', sm: '120px' },
                     height: '44px',
-                    fontSize: '0.9rem',
+                    fontSize: { xs: '0.8rem', sm: '0.9rem' },
                     borderRadius: '12px',
                   }}
                   color={orderType === 'delivery' ? 'primary' : 'error'}
@@ -560,6 +601,7 @@ const OrderScreen: React.FC = () => {
               ))}
             </Paper>
 
+            <Box sx={{ flex: 1, minHeight: 0, overflowY: { md: 'auto' }, pr: { md: 0.5 } }}>
             <Grid container spacing={1.5}>
               {filteredProducts.map((product) => {
                 const visual = getProductVisual(product.category);
@@ -567,7 +609,7 @@ const OrderScreen: React.FC = () => {
                 const actionColor = orderType === 'delivery' ? '#1976d2' : '#d32f2f';
 
                 return (
-                <Grid item xs={12} sm={6} md={4} key={product.id}>
+                <Grid item xs={12} sm={6} md={6} lg={4} xl={3} key={product.id}>
                   <Card sx={{ height: '100%', border: '1px solid rgba(15,23,42,0.06)', overflow: 'visible', position: 'relative' }}>
                     <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
                       <Box sx={{ display: 'flex', gap: 1.25, alignItems: 'flex-start', mb: 1.25 }}>
@@ -657,12 +699,29 @@ const OrderScreen: React.FC = () => {
                 );
               })}
             </Grid>
+            </Box>
           </Grid>
 
           {/* Right side - Cart */}
-          <Grid item xs={12} md={3}>
-            <Paper sx={{ p: 2.25, height: 'calc(100vh - 104px)', position: 'sticky', top: '16px', overflow: 'auto', borderTop: `4px solid ${orderType === 'delivery' ? '#1976d2' : '#d32f2f'}` }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+          <Grid
+            item
+            xs={12}
+            md={4}
+            lg={3}
+            sx={{ display: 'flex', flexDirection: 'column', height: { md: '100%' }, minHeight: 0 }}
+          >
+            <Paper
+              sx={{
+                p: 2.25,
+                height: { xs: 'auto', md: '100%' },
+                maxHeight: { xs: '80vh', md: '100%' },
+                display: 'flex',
+                flexDirection: 'column',
+                overflow: 'hidden',
+                borderTop: `4px solid ${orderType === 'delivery' ? '#1976d2' : '#d32f2f'}`,
+              }}
+            >
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1, flexShrink: 0 }}>
                 <ThreeDIcon color={orderType === 'delivery' ? '#1976d2' : '#d32f2f'} size={36}>
                   <ShoppingCartIcon />
                 </ThreeDIcon>
@@ -670,8 +729,9 @@ const OrderScreen: React.FC = () => {
                   Sipariş Sepeti
                 </Typography>
               </Box>
-              <Divider sx={{ mb: 2 }} />
+              <Divider sx={{ mb: 2, flexShrink: 0 }} />
 
+              <Box sx={{ flex: 1, minHeight: 0, overflowY: 'auto', pr: 0.5 }}>
               {/* Kurye bilgileri — sepet boş olsa da her zaman görünür */}
               {orderType === 'delivery' && (
                 <Box sx={{ mb: 2 }}>
@@ -793,6 +853,7 @@ const OrderScreen: React.FC = () => {
                   </Button>
                 </>
               )}
+              </Box>
             </Paper>
           </Grid>
         </Grid>

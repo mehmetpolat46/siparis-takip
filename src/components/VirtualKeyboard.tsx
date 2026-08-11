@@ -151,10 +151,10 @@ const VirtualKeyboard: React.FC = () => {
   }), []);
 
   const KEY_SX = {
-    minWidth: 44,
-    minHeight: { xs: 48, sm: 56 },
-    px: 1,
-    m: 0.3,
+    minWidth: { xs: 34, sm: 44 },
+    minHeight: { xs: 42, sm: 56 },
+    px: { xs: 0.5, sm: 1 },
+    m: { xs: 0.2, sm: 0.3 },
     borderRadius: '12px',
     bgcolor: '#fff',
     border: '1px solid #dce6f2',
@@ -191,9 +191,9 @@ const VirtualKeyboard: React.FC = () => {
         {...bindPress(() => setOpen((v) => !v))}
         sx={{
           position: 'fixed',
-          bottom: 24,
-          right: 24,
-          zIndex: 1400,
+          bottom: { xs: 16, sm: 24 },
+          right: { xs: 16, sm: 24 },
+          zIndex: (t) => t.zIndex.modal + 4,
           bgcolor: open ? '#1565c0' : '#fff',
           color: open ? '#fff' : '#1565c0',
           border: '1px solid rgba(21,101,192,0.22)',
@@ -222,7 +222,7 @@ const VirtualKeyboard: React.FC = () => {
             bottom: 0,
             left: 0,
             right: 0,
-            zIndex: 1300,
+            zIndex: (t) => t.zIndex.modal + 3,
             bgcolor: '#f5f8fc',
             backgroundImage: 'linear-gradient(to bottom, #ffffff, #edf3fa)',
             borderTop: '3px solid #1976d2',
@@ -231,11 +231,20 @@ const VirtualKeyboard: React.FC = () => {
             pt: 1,
             pb: 1.5,
             backdropFilter: 'blur(8px)',
+            maxWidth: '100vw',
           }}
         >
           {/* Satırlar */}
           {rows.map((row, ri) => (
-            <Box key={ri} sx={{ display: 'flex', justifyContent: 'center', mb: 0.3 }}>
+            <Box
+              key={ri}
+              sx={{
+                display: 'flex',
+                justifyContent: { xs: 'flex-start', md: 'center' },
+                overflowX: { xs: 'auto', md: 'visible' },
+                mb: 0.3,
+              }}
+            >
               {/* Shift (ilk satır hariç) */}
               {ri === 3 && (
                 <Box

@@ -147,6 +147,7 @@ const OrderTrackingPage: React.FC = () => {
         sx={{
           display: 'flex',
           alignItems: 'center',
+          flexWrap: 'wrap',
           gap: 1.5,
           p: 2,
           mb: 3,
@@ -158,8 +159,8 @@ const OrderTrackingPage: React.FC = () => {
         <ThreeDIcon color="#1976d2" size={48}>
           <AssignmentIcon />
         </ThreeDIcon>
-        <Box>
-          <Typography variant="h5" sx={{ fontWeight: 800 }}>
+        <Box sx={{ minWidth: 0 }}>
+          <Typography variant="h5" sx={{ fontWeight: 800, fontSize: { xs: '1.15rem', sm: '1.5rem' } }}>
             Sipariş Takip
           </Typography>
           <Typography variant="body2" color="text.secondary">

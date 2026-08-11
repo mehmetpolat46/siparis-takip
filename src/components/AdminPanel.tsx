@@ -25,6 +25,8 @@ import {
   DialogActions,
   AppBar,
   Toolbar,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -60,7 +62,7 @@ function TabPanel(props: TabPanelProps) {
       aria-labelledby={`simple-tab-${index}`}
       {...other}
     >
-      {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
+      {value === index && <Box sx={{ p: { xs: 1.5, sm: 3 } }}>{children}</Box>}
     </div>
   );
 }
@@ -75,6 +77,8 @@ interface SavedPhones {
 
 const AdminPanel: React.FC = () => {
   const navigate = useNavigate();
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
   const { orders, deleteOrder, getSalesStats } = useOrders();
   const [tabValue, setTabValue] = useState(0);
   const [startDate, setStartDate] = useState<Date | null>(new Date());
@@ -404,46 +408,50 @@ const AdminPanel: React.FC = () => {
   return (
     <Box sx={{ flexGrow: 1, minHeight: '100vh', bgcolor: '#f6f8fc' }}>
       <AppBar position="static" color="default" elevation={0}>
-        <Toolbar>
+        <Toolbar sx={{ flexWrap: 'wrap', gap: 1, py: { xs: 1, sm: 0.5 } }}>
           <IconButton
             edge="start"
             color="inherit"
             onClick={() => navigate('/')}
-            sx={{ mr: 2 }}
+            sx={{ mr: { xs: 1, sm: 2 } }}
           >
             <ArrowBackIcon />
           </IconButton>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25, flexGrow: 1 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25, flexGrow: 1, minWidth: 0 }}>
             <ThreeDIcon color="#1565c0" size={38}>
               <DashboardIcon />
             </ThreeDIcon>
-            <Box>
-              <Typography variant="subtitle2" color="text.secondary" sx={{ lineHeight: 1.1 }}>
+            <Box sx={{ minWidth: 0 }}>
+              <Typography variant="subtitle2" color="text.secondary" sx={{ lineHeight: 1.1, display: { xs: 'none', sm: 'block' } }}>
                 USLU DÖNER
               </Typography>
-              <Typography variant="h6" component="div" sx={{ lineHeight: 1.25 }}>
+              <Typography variant="h6" component="div" noWrap sx={{ lineHeight: 1.25, fontSize: { xs: '1rem', sm: '1.25rem' } }}>
                 Yönetim Merkezi
               </Typography>
             </Box>
           </Box>
-          <ExcelExport data={orders} filename="uslu_doner_rapor" />
-          <Button
-            startIcon={<HomeIcon />}
-            onClick={() => navigate('/')}
-            sx={{ ml: 1 }}
-          >
-            Ana Sayfa
-          </Button>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, justifyContent: 'flex-end' }}>
+            <ExcelExport data={orders} filename="uslu_doner_rapor" />
+            <Button
+              startIcon={<HomeIcon />}
+              onClick={() => navigate('/')}
+            >
+              Ana Sayfa
+            </Button>
+          </Box>
         </Toolbar>
       </AppBar>
 
-      <Container maxWidth="lg" sx={{ mt: { xs: 2, md: 4 }, mb: 4 }}>
+      <Container maxWidth="lg" sx={{ mt: { xs: 2, md: 4 }, mb: 4, px: { xs: 1, sm: 2 } }}>
         <Paper sx={{ width: '100%', mb: 2, overflow: 'hidden' }}>
           <Tabs
             value={tabValue}
             onChange={handleTabChange}
             indicatorColor="primary"
             textColor="primary"
+            variant="scrollable"
+            scrollButtons="auto"
+            allowScrollButtonsMobile
           >
             <Tab label="Kasa" />
             <Tab label="Raporlar" />
@@ -453,7 +461,7 @@ const AdminPanel: React.FC = () => {
           </Tabs>
 
           <TabPanel value={tabValue} index={0}>
-            <Box sx={{ mb: 3, display: 'flex', gap: 2, alignItems: 'center' }}>
+            <Box sx={{ mb: 3, display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
               <FormControl sx={{ minWidth: 200 }}>
                 <InputLabel>Tarih Aralığı</InputLabel>
                 <Select
@@ -596,7 +604,7 @@ const AdminPanel: React.FC = () => {
 
           <TabPanel value={tabValue} index={2}>
             {/* Sipariş Geçmişi için Tarih Filtresi */}
-            <Box sx={{ mb: 3, display: 'flex', gap: 2, alignItems: 'center' }}>
+            <Box sx={{ mb: 3, display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
               <FormControl sx={{ minWidth: 200 }}>
                 <InputLabel>Tarih Aralığı</InputLabel>
                 <Select
@@ -741,7 +749,7 @@ const AdminPanel: React.FC = () => {
                 sx={{ minWidth: 200 }}
               />
             </Box>
-            <ResponsiveContainer width="100%" height={400}>
+            <ResponsiveContainer width="100%" height={isSmallScreen ? 300 : 400}>
               <BarChart data={analysisChartData} margin={{ top: 16, right: 32, left: 16, bottom: 16 }}>
                 <XAxis dataKey="name" />
                 <YAxis />

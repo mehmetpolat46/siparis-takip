@@ -57,6 +57,7 @@ const PlatformPanelPage: React.FC = () => {
         sx={{
           display: 'flex',
           alignItems: 'center',
+          flexWrap: 'wrap',
           gap: 2,
           mb: 3,
           p: { xs: 2, sm: 2.5 },
@@ -69,8 +70,8 @@ const PlatformPanelPage: React.FC = () => {
         <ThreeDIcon color={config.bgColor} size={50}>
           <StorefrontIcon />
         </ThreeDIcon>
-        <Box>
-          <Typography variant="h5" sx={{ fontWeight: 800 }}>
+        <Box sx={{ minWidth: 0 }}>
+          <Typography variant="h5" sx={{ fontWeight: 800, fontSize: { xs: '1.15rem', sm: '1.5rem' } }}>
             {config.label}
           </Typography>
           <Typography variant="body2" sx={{ opacity: 0.9, mt: 0.25 }}>

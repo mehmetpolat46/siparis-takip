@@ -116,6 +116,7 @@ const CourierTrackingPage: React.FC = () => {
         sx={{
           display: 'flex',
           alignItems: 'center',
+          flexWrap: 'wrap',
           gap: 1.5,
           p: 2,
           mb: 3,
@@ -127,8 +128,8 @@ const CourierTrackingPage: React.FC = () => {
         <ThreeDIcon color="#2e7d32" size={48}>
           <TwoWheelerIcon />
         </ThreeDIcon>
-        <Box>
-          <Typography variant="h5" sx={{ fontWeight: 800 }}>
+        <Box sx={{ minWidth: 0 }}>
+          <Typography variant="h5" sx={{ fontWeight: 800, fontSize: { xs: '1.15rem', sm: '1.5rem' } }}>
             Kurye Takip
           </Typography>
           <Typography variant="body2" color="text.secondary">
