@@ -95,6 +95,18 @@ const products: Product[] = [
     price: 220,
     category: 'Hatay Usulü Dönerler',
   },
+  {
+    id: 123,
+    name: 'Lavaş',
+    price: 15,
+    category: 'Hatay Usulü Dönerler',
+  },
+  {
+    id: 124,
+    name: '5gr. Tavuk',
+    price: 5,
+    category: 'Hatay Usulü Dönerler',
+  },
  
 
  
