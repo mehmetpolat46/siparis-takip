@@ -871,6 +871,11 @@ const CartCustomizationPanel: React.FC<CartCustomizationPanelProps> = ({
   // Ürün adına göre ekmek sayısını hesapla
   const getBreadCountForItem = (item: { name: string; category: string }, quantity: number): number => {
     const lowerName = item.name.toLowerCase();
+
+    // 5gr. Tavuk ekmeksizdir
+    if (lowerName.includes('5gr') && lowerName.includes('tavuk')) {
+      return 0;
+    }
     
     // Hatay Maxi = 2 ekmek
     if (lowerName.includes('maksi') || lowerName.includes('maxi')) {

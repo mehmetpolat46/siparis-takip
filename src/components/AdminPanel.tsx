@@ -383,7 +383,8 @@ const AdminPanel: React.FC = () => {
         if (
           data.category === 'İçecekler & Atıştırmalık' ||
           data.category === 'Takolar' ||
-          name.toLowerCase().includes('tako')
+          name.toLowerCase().includes('tako') ||
+          (name.toLowerCase().includes('5gr') && name.toLowerCase().includes('tavuk'))
         ) return sum;
         let ekmek = 1;
         if (name.toLowerCase().includes('maksi')) ekmek = 2;
@@ -539,7 +540,8 @@ const AdminPanel: React.FC = () => {
                             if (
                               data.category === 'İçecekler & Atıştırmalık' ||
                               data.category === 'Takolar' ||
-                              name.toLowerCase().includes('tako')
+                              name.toLowerCase().includes('tako') ||
+                              (name.toLowerCase().includes('5gr') && name.toLowerCase().includes('tavuk'))
                             ) return sum;
                             let ekmek = 1;
                             if (name.toLowerCase().includes('maksi')) ekmek = 2;
